@@ -1,0 +1,25 @@
+:root {
+  --bg: #f4efe6;
+  --surface: #fbf8f2;
+  --ink: #2b2620;
+  --muted: #7a6f60;
+  --accent: #6d5530;
+  --gold: #b89a5e;
+  --line: #d9ccb2;
+  --danger: #9b3b2e;
+  --font: "Noto Serif SC", "Songti SC", "STSong", serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #141a2b;
+    --surface: #1b2238;
+    --ink: #e6e1d3;
+    --muted: #8e96ad;
+    --accent: #c9a95c;
+    --gold: #c9a95c;
+    --line: #2e3650;
+    --danger: #e08a7a;
+    color-scheme: dark;
+  }
+}
