@@ -2,7 +2,7 @@
 .li p { margin: 0 0 18px; font-size: 40px; line-height: 1.8; }
 .li-top { text-align: center; padding-bottom: 48px; margin-bottom: 56px; }
 .li-kicker { font-size: 34px; letter-spacing: .3em; }
-.li-q { font-size: 56px; line-height: 1.5; margin: 28px 0 14px; }
+.li-q { font-size: 56px; line-height: 1.5; margin: 28px 0 14px; text-wrap: balance; }
 .li-meta { font-size: 34px; }
 .li-orn { display: none; font-size: 32px; letter-spacing: .5em; margin-top: 32px; }
 .li-cards { display: flex; justify-content: center; gap: 36px; margin-bottom: 24px; }

@@ -17,6 +17,8 @@ export default function App() {
     return () => data.subscription.unsubscribe();
   }, []);
 
+  // 仅开发环境：?local 跳过登录，用来在本机预览界面（不会进生产包）。
+  if (import.meta.env.DEV && new URLSearchParams(window.location.search).has('local')) return <Shell userId="local-dev" />;
   if (session === undefined) return null;
   if (!session) return <Login />;
   return <Shell userId={session.user.id} />;
