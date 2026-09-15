@@ -1,0 +1,33 @@
+.li { width: 1080px; padding: 96px 80px 80px; font-family: "Noto Serif SC", "Songti SC", "STSong", serif; box-sizing: border-box; }
+.li p { margin: 0 0 18px; font-size: 40px; line-height: 1.8; }
+.li-top { text-align: center; padding-bottom: 48px; margin-bottom: 56px; }
+.li-kicker { font-size: 34px; letter-spacing: .3em; }
+.li-q { font-size: 56px; line-height: 1.5; margin: 28px 0 14px; }
+.li-meta { font-size: 34px; }
+.li-orn { display: none; font-size: 32px; letter-spacing: .5em; margin-top: 32px; }
+.li-cards { display: flex; justify-content: center; gap: 36px; margin-bottom: 24px; }
+.li-cards figure { margin: 0; text-align: center; width: 270px; }
+.li-cards img { width: 270px; height: 467px; object-fit: cover; display: block; box-sizing: border-box; }
+.li-cards img.reversed { transform: rotate(180deg); }
+.li-cards figcaption { font-size: 32px; line-height: 1.5; margin-top: 16px; }
+.li-sec { margin-top: 64px; }
+.li-sec h4 { margin: 0 0 22px; font-size: 44px; font-weight: 600; }
+.li-sec h4 span { font-weight: 400; font-size: 36px; margin-left: 12px; }
+.li-sign { text-align: center; font-size: 36px; margin-top: 88px; letter-spacing: .2em; }
+
+.li-day { background: #f4efe6; color: #2b2620; }
+.li-day .li-top { border-bottom: 3px solid #b89a5e; }
+.li-day .li-kicker, .li-day .li-cards figcaption, .li-day .li-sec h4 span { color: #8a7350; }
+.li-day .li-meta { color: #7a6f60; }
+.li-day .li-cards img { border: 3px solid #cdbb96; padding: 10px; background: #fff; }
+.li-day .li-sec h4 { color: #6d5530; }
+.li-day .li-sign { color: #6d5530; }
+
+.li-night { background: #141a2b; color: #d6d1c4; }
+.li-night .li-kicker, .li-night .li-orn, .li-night .li-cards figcaption, .li-night .li-sec h4, .li-night .li-sign { color: #c9a95c; }
+.li-night .li-orn { display: block; }
+.li-night .li-q { color: #f3ecd9; }
+.li-night .li-meta { color: #8e96ad; }
+.li-night .li-cards img { border: 3px solid #c9a95c; border-radius: 12px; }
+.li-night .li-sec { border-top: 3px solid #2e3650; padding-top: 44px; }
+.li-night .li-sec h4 span { color: #c9a95c; }
