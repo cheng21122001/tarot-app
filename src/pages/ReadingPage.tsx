@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { isBlank, type Reading } from '../reading/types';
+import { BirthSection } from './reading/BirthSection';
 import { CardSlots } from './reading/CardSlots';
 import { ExportSection } from './reading/ExportSection';
 import { InterpretationSection } from './reading/InterpretationSection';
@@ -52,6 +53,7 @@ export function ReadingPage({ initial, onSave, onDelete, onBack }: { initial: Re
     <div className="page">
       <button type="button" className="text-btn back" onClick={onBack}>‹ 记录</button>
       <QuestionSection reading={reading} onChange={onChange} />
+      <BirthSection reading={reading} onChange={onChange} />
       <CardSlots reading={reading} onChange={onChange} />
       <InterpretationSection reading={reading} onChange={onChange} />
       <ExportSection reading={reading} onChange={onChange} />

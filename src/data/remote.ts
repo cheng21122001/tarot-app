@@ -10,7 +10,8 @@ export async function fetchRemote(): Promise<Reading[]> {
   for (let from = 0; ; from += PAGE) {
     const { data, error } = await supabase
       .from('readings')
-      .select('id,created_at,updated_at,client_name,question,spread_preset,positions,cards,interpretation,export_theme')
+      // 用 * 而不是列名：数据库还没加 birth 列时也能照常拉取。
+      .select('*')
       .order('id')
       .range(from, from + PAGE - 1);
     if (error) throw error;
@@ -22,7 +23,16 @@ export async function fetchRemote(): Promise<Reading[]> {
 export async function pushRemote(list: Reading[]): Promise<void> {
   if (!list.length) return;
   const { error } = await supabase.from('readings').upsert(list.map(toRow));
-  if (error) throw error;
+  if (!error) return;
+  // 数据库还没加 birth 列时：没填出生信息的记录照常同步，填了的留在本地待同步，加列后自动推上去。
+  if (/birth/.test(error.message)) {
+    const plain = list.filter((r) => !r.birth).map((r) => {
+      const { birth: _, ...row } = toRow(r);
+      return row;
+    });
+    if (plain.length) await supabase.from('readings').upsert(plain);
+  }
+  throw error;
 }
 
 // 返回服务器上确认已不存在的 id。没有删除权限时 RLS 不报错、只是删 0 行，所以删完再查一遍。

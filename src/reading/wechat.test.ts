@@ -44,6 +44,11 @@ describe('toWechatText', () => {
     );
   });
 
+  it('includes the chart section when present', () => {
+    const text = toWechatText(r, { kind: 'sections', cards: ['A', 'B', 'C'], chart: 'M', overall: 'D', advice: 'E' });
+    expect(text).toContain('C\n——\n命盘参考\nM\n——\n整体解读');
+  });
+
   it('formats plain text', () => {
     expect(toWechatText(r, { kind: 'plain', text: '整段' })).toBe('问题：要继续合作吗？\n\n整段\n\n小艾');
   });

@@ -1,4 +1,4 @@
-import type { CardPick, CardSlotsValue, Positions, Reading, SpreadPreset, Theme } from '../reading/types';
+import type { BirthInfo, CardPick, CardSlotsValue, Positions, Reading, SpreadPreset, Theme } from '../reading/types';
 
 export interface ReadingRow {
   id: string;
@@ -11,6 +11,7 @@ export interface ReadingRow {
   cards: (CardPick | null)[];
   interpretation: string;
   export_theme: Theme | null;
+  birth?: BirthInfo | null;
 }
 
 const PRESET_VALUES: SpreadPreset[] = ['past_present_future', 'situation_obstacle_advice', 'you_them_outcome', 'custom'];
@@ -27,6 +28,7 @@ export function toRow(r: Reading): ReadingRow {
     cards: [...r.cards],
     interpretation: r.interpretation,
     export_theme: r.exportTheme,
+    birth: r.birth,
   };
 }
 
@@ -46,5 +48,19 @@ export function fromRow(row: ReadingRow): Reading {
     cards,
     interpretation: row.interpretation ?? '',
     exportTheme: row.export_theme === 'day' || row.export_theme === 'night' ? row.export_theme : null,
+    birth: normaliseBirth(row.birth),
+  };
+}
+
+function normaliseBirth(b: unknown): BirthInfo | null {
+  if (!b || typeof b !== 'object') return null;
+  const o = b as Partial<BirthInfo>;
+  if (typeof o.date !== 'string') return null;
+  return {
+    calendar: o.calendar === 'lunar' ? 'lunar' : 'solar',
+    date: o.date,
+    leapMonth: o.leapMonth === true,
+    time: typeof o.time === 'string' ? o.time : null,
+    gender: o.gender === 'female' ? 'female' : 'male',
   };
 }

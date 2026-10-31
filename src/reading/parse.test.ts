@@ -68,3 +68,12 @@ describe('parseInterpretation', () => {
     expect(parseInterpretation('')).toEqual({ kind: 'plain', text: '' });
   });
 });
+
+describe('parseInterpretation with 命盘参考', () => {
+  it('picks up the optional chart section', () => {
+    const text = standard.replace('【整体解读】', '【命盘参考】\n命盘段落。\n【整体解读】');
+    const r = parseInterpretation(text);
+    expect(r.kind === 'sections' && r.chart).toBe('命盘段落。');
+    expect(r.kind === 'sections' && r.overall).toBe('整体段落。');
+  });
+});

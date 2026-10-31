@@ -9,6 +9,14 @@ export interface CardPick {
 export type Positions = [string, string, string];
 export type CardSlotsValue = [CardPick | null, CardPick | null, CardPick | null];
 
+export interface BirthInfo {
+  calendar: 'solar' | 'lunar';
+  date: string; // YYYY-MM-DD，农历时为农历年月日
+  leapMonth: boolean;
+  time: string | null; // HH:mm，null 为时辰不详
+  gender: 'male' | 'female';
+}
+
 export interface Reading {
   id: string;
   createdAt: string;
@@ -20,6 +28,7 @@ export interface Reading {
   cards: CardSlotsValue;
   interpretation: string;
   exportTheme: Theme | null;
+  birth: BirthInfo | null;
 }
 
 export const PRESETS: Record<Exclude<SpreadPreset, 'custom'>, Positions> = {
@@ -41,6 +50,7 @@ export function newReading(now: Date = new Date()): Reading {
     cards: [null, null, null],
     interpretation: '',
     exportTheme: null,
+    birth: null,
   };
 }
 

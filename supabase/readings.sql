@@ -27,3 +27,6 @@ create policy readings_update_own on public.readings for update using (user_id =
 
 drop policy if exists readings_delete_own on public.readings;
 create policy readings_delete_own on public.readings for delete using (user_id = auth.uid());
+
+-- 八字：客人出生信息 { calendar, date, leapMonth, time, gender }，没填为 null。
+alter table public.readings add column if not exists birth jsonb;

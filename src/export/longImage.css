@@ -31,3 +31,12 @@
 .li-night .li-cards img { border: 3px solid #c9a95c; border-radius: 12px; }
 .li-night .li-sec { border-top: 3px solid #2e3650; padding-top: 44px; }
 .li-night .li-sec h4 span { color: #c9a95c; }
+
+.li-pillars { display: flex; justify-content: center; gap: 56px; margin: 8px 0 36px; text-align: center; }
+.li-pillars div { display: flex; flex-direction: column; gap: 8px; }
+.li-pillars strong { font-size: 60px; font-weight: 600; letter-spacing: .12em; }
+.li-pillars small { font-size: 28px; }
+.li-day .li-pillars strong { color: #6d5530; }
+.li-day .li-pillars small { color: #8a7350; }
+.li-night .li-pillars strong { color: #f3ecd9; }
+.li-night .li-pillars small { color: #c9a95c; }

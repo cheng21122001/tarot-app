@@ -1,3 +1,4 @@
+import { buildChart } from '../bazi/chart';
 import { cardImageUrl } from '../cards/deck';
 import { cardDisplayName, ORDINALS } from '../reading/labels';
 import type { ParsedInterpretation } from '../reading/parse';
@@ -17,6 +18,7 @@ function Paragraphs({ text }: { text: string }) {
 }
 
 export function LongImage({ reading: r, parsed, theme }: { reading: Reading; parsed: ParsedInterpretation; theme: Theme }) {
+  const chart = r.birth ? buildChart(r.birth, new Date(r.createdAt)) : null;
   return (
     <div className={`li li-${theme}`}>
       <header className="li-top">
@@ -51,6 +53,23 @@ export function LongImage({ reading: r, parsed, theme }: { reading: Reading; par
               <Paragraphs text={parsed.cards[i]} />
             </section>
           ))}
+          {parsed.chart && (
+            <section className="li-sec">
+              <h4>命盘参考</h4>
+              {chart && (
+                <div className="li-pillars">
+                  {chart.pillars.map((p) => (
+                    <div key={p.label}>
+                      <small>{p.label}</small>
+                      <strong>{p.ganZhi}</strong>
+                      <small>{p.shiShen}</small>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <Paragraphs text={parsed.chart} />
+            </section>
+          )}
           <section className="li-sec">
             <h4>整体解读</h4>
             <Paragraphs text={parsed.overall} />

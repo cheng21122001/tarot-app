@@ -4,7 +4,7 @@ import { fromRow, toRow } from './rows';
 
 describe('rows', () => {
   it('round-trips a reading', () => {
-    const r: Reading = { ...newReading(), clientName: '小林', cards: [{ id: 'major-00', reversed: true }, null, null], exportTheme: 'night' };
+    const r: Reading = { ...newReading(), clientName: '小林', cards: [{ id: 'major-00', reversed: true }, null, null], exportTheme: 'night', birth: { calendar: 'lunar', date: '1998-05-03', leapMonth: true, time: null, gender: 'female' } };
     expect(fromRow(toRow(r))).toEqual(r);
   });
 
@@ -16,6 +16,7 @@ describe('rows', () => {
     expect(r.positions).toEqual(['A', '', '']);
     expect(r.cards).toEqual([null, null, null]);
     expect(r.spreadPreset).toBe('custom');
+    expect(r.birth).toBeNull();
     expect(r.createdAt).toBe('2026-09-15T00:00:00.000Z');
   });
 });
