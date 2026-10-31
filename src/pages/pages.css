@@ -34,10 +34,12 @@
 .chart-toggle summary { cursor: pointer; color: var(--accent); font-size: 14px; padding: 6px 0; }
 .chart-toggle[open] summary { margin-bottom: 8px; }
 .birth-date { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
-.birth-date input:not([type=checkbox]) { flex: 1 1 90px; width: auto; min-width: 0; }
-.birth-date select { flex: 1 1 72px; min-width: 0; }
-select, input[type=date], input[type=time] { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; font: inherit; font-size: 16px; color: inherit; min-height: 44px; }
-input[type=date], input[type=time] { width: 100%; }
+.birth-date .unit { display: inline-flex; align-items: center; gap: 6px; flex: 1 1 100px; min-width: 0; }
+.birth-date .unit input { min-width: 0; }
+.birth-date select { flex: 1 1 80px; min-width: 0; }
+.birth-time { display: flex; gap: 8px; }
+.birth-time select { flex: 1 1 auto; min-width: 0; }
+select { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; font: inherit; font-size: 16px; color: inherit; min-height: 44px; }
 .check { display: inline-flex; align-items: center; gap: 4px; font-size: 14px; }
 .birth-row { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: start; }
 .export-head { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-bottom: 1px solid var(--line); }
