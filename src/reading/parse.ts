@@ -1,6 +1,6 @@
 export type ParsedInterpretation = { kind: 'sections'; sections: { title: string; body: string }[] } | { kind: 'plain'; text: string };
 
-// 比较标题时忽略空格和全角半角冒号，Claude 常把「：」写成「:」。
+// 比较标题时忽略空格和全角半角冒号，AI 常把「：」写成「:」。
 const norm = (s: string) => s.replace(/[\s:：]/g, '');
 
 const HEADING = /^[\s*#>]*[【[]\s*([^【】[\]]+?)\s*[】\]][\s*]*$/;

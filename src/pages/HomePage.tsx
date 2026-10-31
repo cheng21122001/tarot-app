@@ -16,18 +16,21 @@ export function HomePage(props: {
   onOpenClient: (id: string) => void;
   onNewClient: () => void;
   onNewReading: (client: Client, kind: 'natal' | 'year', year: number) => void;
+  signature: string;
+  onSignature: (s: string) => void;
   onSignOut: () => void;
 }) {
   const { tab, clients, readings } = props;
   const [query, setQuery] = useState('');
   const [picking, setPicking] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const day = useMemo(() => today(), []);
   const q = query.trim().toLowerCase();
   const byId = new Map(clients.map((c) => [c.id, c]));
   const nameOf = (r: Reading) => byId.get(r.clientId)?.name || r.clientName || '未填称呼';
 
   const shownReadings = q
-    ? readings.filter((r) => nameOf(r).toLowerCase().includes(q) || r.focus.toLowerCase().includes(q) || readingTitle(r).includes(q))
+    ? readings.filter((r) => nameOf(r).toLowerCase().includes(q) || readingTitle(r).includes(q))
     : readings;
   const shownClients = q ? clients.filter((c) => c.name.toLowerCase().includes(q) || c.note.toLowerCase().includes(q)) : clients;
 
@@ -36,7 +39,7 @@ export function HomePage(props: {
       <header className="today">
         <div className="today-top">
           <span>今天 {day.lunar}</span>
-          <button type="button" className="link" onClick={props.onSignOut}>退出登录</button>
+          <button type="button" className="link" onClick={() => setSettingsOpen(true)}>设置</button>
         </div>
         <div className="today-gz">
           {day.ganZhi.map((g, i) => (
@@ -51,15 +54,15 @@ export function HomePage(props: {
       <div className="home-tools">
         <div className="seg">
           <button type="button" className={tab === 'readings' ? 'on' : ''} onClick={() => props.onTab('readings')}>测算记录</button>
-          <button type="button" className={tab === 'clients' ? 'on' : ''} onClick={() => props.onTab('clients')}>客人 {clients.length || ''}</button>
+          <button type="button" className={tab === 'clients' ? 'on' : ''} onClick={() => props.onTab('clients')}>命主 {clients.length || ''}</button>
         </div>
-        <input type="search" placeholder={tab === 'readings' ? '搜客人或关注点' : '搜称呼或备注'} value={query} onChange={(e) => setQuery(e.target.value)} />
+        <input type="search" placeholder={tab === 'readings' ? '搜称呼' : '搜称呼或备注'} value={query} onChange={(e) => setQuery(e.target.value)} />
       </div>
 
       {tab === 'readings' ? (
         <>
           {shownReadings.length === 0 && (
-            <p className="empty">{readings.length ? '没有匹配的记录。' : clients.length ? '还没有测算。点下面的按钮，选一位客人开始。' : '先添加一位客人，录入出生信息就能排盘。'}</p>
+            <p className="empty">{readings.length ? '没有匹配的记录。' : clients.length ? '还没有测算。点下面的按钮，选一位命主开始。' : '先添加一位命主，录入出生信息就能排盘。'}</p>
           )}
           {groupByMonth(shownReadings).map((g) => (
             <section key={g.label} className="month">
@@ -73,7 +76,7 @@ export function HomePage(props: {
                     <button type="button" className="row" onClick={() => props.onOpenReading(r.id)}>
                       <span className="row-main">
                         <span className="row-title kai">{nameOf(r)}</span>
-                        <span className="row-sub">{readingTitle(r)}{r.focus.trim() ? `，${r.focus.trim()}` : ''}</span>
+                        <span className="row-sub">{readingTitle(r)}</span>
                       </span>
                       <span className="row-side">
                         {formatDate(r.createdAt).slice(5)}
@@ -88,7 +91,7 @@ export function HomePage(props: {
         </>
       ) : (
         <>
-          {shownClients.length === 0 && <p className="empty">{clients.length ? '没有匹配的客人。' : '还没有客人。点下面的按钮添加第一位。'}</p>}
+          {shownClients.length === 0 && <p className="empty">{clients.length ? '没有匹配的命主。' : '还没有命主。点下面的按钮添加第一位。'}</p>}
           <ul className="rows">
             {shownClients.map((c) => (
               <ClientRow key={c.id} client={c} count={readings.filter((r) => r.clientId === c.id).length} onOpen={() => props.onOpenClient(c.id)} />
@@ -98,8 +101,9 @@ export function HomePage(props: {
       )}
 
       <button type="button" className="fab" onClick={() => (tab === 'clients' || !clients.length ? props.onNewClient() : setPicking(true))}>
-        {tab === 'clients' || !clients.length ? '添加客人' : '新建测算'}
+        {tab === 'clients' || !clients.length ? '添加命主' : '新建测算'}
       </button>
+      {settingsOpen && <SettingsSheet signature={props.signature} onSave={props.onSignature} onSignOut={props.onSignOut} onClose={() => setSettingsOpen(false)} />}
       {picking && <ClientPicker clients={clients} onNewClient={props.onNewClient} onCreate={props.onNewReading} onClose={() => setPicking(false)} />}
     </div>
   );
@@ -136,7 +140,7 @@ function ClientPicker({ clients, onNewClient, onCreate, onClose }: { clients: Cl
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal sheet" onClick={(e) => e.stopPropagation()}>
         <div className="sheet-head">
-          <strong>{chosen ? `给${chosen.name || '这位客人'}看什么` : '给谁测算'}</strong>
+          <strong>{chosen ? `给${chosen.name || '这位命主'}看什么` : '选择命主'}</strong>
           <button type="button" className="link" onClick={chosen ? () => setChosen(null) : onClose}>{chosen ? '换一位' : '取消'}</button>
         </div>
         <div className="sheet-body">
@@ -154,9 +158,35 @@ function ClientPicker({ clients, onNewClient, onCreate, onClose }: { clients: Cl
                   </li>
                 ))}
               </ul>
-              <button type="button" className="btn" onClick={onNewClient}>添加新客人</button>
+              <button type="button" className="btn" onClick={onNewClient}>添加命主</button>
             </>
           )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SettingsSheet({ signature, onSave, onSignOut, onClose }: { signature: string; onSave: (s: string) => void; onSignOut: () => void; onClose: () => void }) {
+  const [value, setValue] = useState(signature);
+  const done = () => {
+    if (value.trim() !== signature) onSave(value.trim());
+    onClose();
+  };
+  return (
+    <div className="modal-backdrop" onClick={done}>
+      <div className="modal sheet" onClick={(e) => e.stopPropagation()}>
+        <div className="sheet-head">
+          <strong>设置</strong>
+          <button type="button" className="link" onClick={done}>完成</button>
+        </div>
+        <div className="sheet-body">
+          <label className="field">
+            <span>落款</span>
+            <input value={value} maxLength={4} placeholder="最多四个字，留空就不加" onChange={(e) => setValue(e.target.value)} />
+          </label>
+          <p className="hint">印在长图末尾的朱砂印章里，也写在微信文字最后。</p>
+          <button type="button" className="btn" onClick={onSignOut}>退出登录</button>
         </div>
       </div>
     </div>

@@ -5,7 +5,7 @@ const SCHOOL_SECTION: Record<ReadingKind, Record<School, string>> = {
   year: { geju: '格局派看这一年', tiaohou: '调候派看这一年', fuyi: '扶抑派看这一年' },
 };
 
-// 每次测算要求 Claude 输出的段落标题，提示词、拆分、导出共用。
+// 每次测算要求输出的段落标题，提示词、拆分、导出共用。
 // schools 为空是加入流派之前的旧测算，保持原来的分段。
 export function sectionsFor(kind: ReadingKind, schools: School[]): string[] {
   const chosen = SCHOOLS.filter((s) => schools.includes(s));

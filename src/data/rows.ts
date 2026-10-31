@@ -1,8 +1,8 @@
-import { SCHOOLS, type BirthInfo, type Client, type Doc, type Reading, type ReadingKind, type School } from '../domain/types';
+import { SCHOOLS, type BirthInfo, type Client, type Doc, type Reading, type School, type Settings } from '../domain/types';
 
 // 沿用原来的 readings 表，不改表结构：用 spread_preset 区分记录种类，其余内容放进 cards（jsonb）。
 // 旧的塔罗记录 spread_preset 是牌阵名，不在下面几种里，拉取时直接跳过。
-export const KIND = { client: 'bazi_client', natal: 'bazi_natal', year: 'bazi_year' } as const;
+export const KIND = { client: 'bazi_client', natal: 'bazi_natal', year: 'bazi_year', settings: 'bazi_settings' } as const;
 export const DELETED = 'deleted';
 export const LIVE_KINDS: string[] = Object.values(KIND);
 
@@ -21,6 +21,9 @@ export interface Row {
 
 export function toRow(d: Doc): Row {
   const common = { id: d.id, created_at: d.createdAt, updated_at: d.updatedAt, positions: ['', '', ''] };
+  if (d.type === 'settings') {
+    return { ...common, spread_preset: KIND.settings, client_name: d.signature, question: '', cards: {}, interpretation: '', export_theme: null };
+  }
   if (d.type === 'client') {
     return { ...common, spread_preset: KIND.client, client_name: d.name, question: d.note, cards: { birth: d.birth }, interpretation: '', export_theme: null };
   }
@@ -46,7 +49,10 @@ export function fromRow(row: Row): Doc | null {
     if (!birth) return null;
     return { ...common, type: 'client', name: row.client_name ?? '', birth, note: row.question ?? '' } satisfies Client;
   }
-  const kind = (Object.keys(KIND) as (keyof typeof KIND)[]).find((k) => k !== 'client' && KIND[k] === row.spread_preset) as ReadingKind | undefined;
+  if (row.spread_preset === KIND.settings) {
+    return { ...common, type: 'settings', signature: row.client_name ?? '' } satisfies Settings;
+  }
+  const kind = row.spread_preset === KIND.natal ? 'natal' : row.spread_preset === KIND.year ? 'year' : undefined;
   if (!kind || typeof data.clientId !== 'string') return null;
   return {
     ...common,

@@ -2,7 +2,7 @@ import type { Session } from '@supabase/supabase-js';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { supabase } from './data/supabase';
 import { useDocs } from './data/useDocs';
-import { newClient, newReading, type Client, type Doc } from './domain/types';
+import { newClient, newReading, newSettings, type Client, type Doc } from './domain/types';
 import { useHashRoute } from './lib/useHashRoute';
 import { useSwipeBack } from './lib/useSwipeBack';
 import { ClientPage } from './pages/ClientPage';
@@ -28,18 +28,18 @@ export default function App() {
 }
 
 function Shell({ userId }: { userId: string }) {
-  const { clients, readings, loaded, synced, saveDoc, deleteDocs } = useDocs(userId);
+  const { clients, readings, settings, loaded, synced, saveDoc, deleteDocs } = useDocs(userId);
   const [hash, go] = useHashRoute();
   const drafts = useRef(new Map<string, Client>());
   const route = hash.match(/^#\/([cr])\/([0-9a-f-]+)$/);
-  // 返回上一页；直接打开深层链接没有上一页时，测算回记录、客人回客人列表。
+  // 返回上一页；直接打开深层链接没有上一页时，测算回记录、命主回命主列表。
   const back = useCallback(() => {
     if (window.history.length > 1) window.history.back();
     else go(route?.[1] === 'c' ? '#/clients' : '#/');
   }, [go, route?.[1]]);
   useSwipeBack(Boolean(route), back);
 
-  // 换页时：列表页回到离开时的位置，客人页、测算页从顶部开始（否则会沿用上一页的滚动位置，停在半中间）。
+  // 换页时：列表页回到离开时的位置，命主页、测算页从顶部开始（否则会沿用上一页的滚动位置，停在半中间）。
   const scrollMemory = useRef(new Map<string, number>());
   const lastHash = useRef(hash);
   useLayoutEffect(() => {
@@ -101,6 +101,7 @@ function Shell({ userId }: { userId: string }) {
           key={r.id}
           initial={r}
           client={client}
+          signature={settings?.signature ?? ''}
           onSave={(next) => saveDoc(next as Doc)}
           onDelete={() => {
             deleteDocs([r.id]);
@@ -122,6 +123,8 @@ function Shell({ userId }: { userId: string }) {
         onOpenClient={(id) => go(`#/c/${id}`)}
         onNewClient={createClient}
         onNewReading={startReading}
+        signature={settings?.signature ?? ''}
+        onSignature={(signature) => saveDoc({ ...(settings ?? newSettings()), signature })}
         onSignOut={() => void supabase.auth.signOut()}
       />
     );

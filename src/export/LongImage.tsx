@@ -3,7 +3,6 @@ import { Gz } from '../components/Gz';
 import { readingTitle, type Reading, type Theme } from '../domain/types';
 import { formatDate } from '../reading/format';
 import type { ParsedInterpretation } from '../reading/parse';
-import { SIGNATURE } from '../reading/wechat';
 import './longImage.css';
 
 function Paragraphs({ text }: { text: string }) {
@@ -16,13 +15,13 @@ function Paragraphs({ text }: { text: string }) {
   );
 }
 
-export function LongImage({ reading: r, name, chart: c, parsed, theme }: { reading: Reading; name: string; chart: BaziChart; parsed: ParsedInterpretation; theme: Theme }) {
+export function LongImage({ reading: r, name, chart: c, parsed, theme, signature }: { reading: Reading; name: string; chart: BaziChart; parsed: ParsedInterpretation; theme: Theme; signature: string }) {
+  const seal = signature.trim();
   return (
     <div className={`li li-${theme}`}>
       <header className="li-top">
         <div className="li-name">{name} 的八字</div>
         <div className="li-title">{readingTitle(r)}</div>
-        {r.focus.trim() && <div className="li-focus">{r.focus.trim()}</div>}
       </header>
 
       <div className="li-pillars">
@@ -58,7 +57,12 @@ export function LongImage({ reading: r, name, chart: c, parsed, theme }: { readi
 
       <footer className="li-sign">
         <span className="li-date">{formatDate(r.createdAt)}</span>
-        <span className="li-seal">{SIGNATURE.split('').map((ch) => <span key={ch}>{ch}</span>)}</span>
+        {seal && (
+          // 印章竖排：两三个字排一列；四个字排两列，从右列读起。
+          <span className={`li-seal${seal.length === 4 ? ' four' : seal.length === 3 ? ' three' : ''}`}>
+            {(seal.length === 4 ? seal.slice(2) + seal.slice(0, 2) : seal.slice(0, 4)).split('').map((ch, i) => <span key={i}>{ch}</span>)}
+          </span>
+        )}
       </footer>
     </div>
   );

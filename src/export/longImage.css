@@ -29,3 +29,5 @@
 .li-night .li-pillars { background: #1f272a; border: 3px solid #2e383b; }
 .li-night .li-seal { background: #c2473a; color: #1a1110; }
 .li-night .wx-wood { color: #63b48e; } .li-night .wx-fire { color: #ef7b5c; } .li-night .wx-earth { color: #d3a85a; } .li-night .wx-metal { color: #aab3bd; } .li-night .wx-water { color: #7fa5dc; }
+.li-seal.three { font-size: 36px; }
+.li-seal.four { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; grid-auto-flow: column; font-size: 42px; }

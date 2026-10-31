@@ -32,16 +32,30 @@ export interface Reading {
   createdAt: string;
   updatedAt: string;
   clientId: string;
-  clientName: string; // 建测算时的客人称呼，客人档案被删后列表仍能显示
+  clientName: string; // 建测算时命主的称呼，命主被删后列表仍能显示
   kind: ReadingKind;
   year: number; // 流年运势看的年份；命盘总论为建档当年，用来定当前大运流年
-  focus: string; // 客人想重点看的方面，可空
+  focus: string; // 已不在界面上填写，保留字段以兼容旧记录
   schools: School[]; // 空数组为加入流派之前的旧测算，按旧的分段写法
   interpretation: string;
   exportTheme: Theme | null;
 }
 
-export type Doc = Client | Reading;
+// 每个账号一份的设置，跟着账号在各设备同步。
+export interface Settings {
+  type: 'settings';
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  signature: string; // 长图落款印章和微信文字末尾的署名，空则不加
+}
+
+export type Doc = Client | Reading | Settings;
+
+export function newSettings(now: Date = new Date()): Settings {
+  const t = now.toISOString();
+  return { type: 'settings', id: crypto.randomUUID(), createdAt: t, updatedAt: t, signature: '' };
+}
 
 export const KIND_LABELS: Record<ReadingKind, string> = { natal: '命盘总论', year: '流年运势' };
 

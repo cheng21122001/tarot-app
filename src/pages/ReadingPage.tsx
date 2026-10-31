@@ -18,10 +18,10 @@ import { toWechatText } from '../reading/wechat';
 
 const never = () => false;
 
-export function ReadingPage(props: { initial: Reading; client: Client | null; onSave: (r: Reading) => void; onDelete: () => void; onHome: () => void; onOpenClient: () => void }) {
+export function ReadingPage(props: { initial: Reading; client: Client | null; signature: string; onSave: (r: Reading) => void; onDelete: () => void; onHome: () => void; onOpenClient: () => void }) {
   const { value: r, change, discard, saveNow, status } = useAutosave(props.initial, props.onSave, never);
   const client = props.client;
-  const name = client?.name.trim() || r.clientName || '客人';
+  const name = client?.name.trim() || r.clientName || '命主';
   const chart = client ? buildChart(client.birth, r.year) : null;
   const titles = useMemo(() => sectionsFor(r.kind, r.schools), [r.kind, r.schools]);
   const parsed = useMemo(() => parseInterpretation(r.interpretation, titles), [r.interpretation, titles]);
@@ -89,19 +89,17 @@ export function ReadingPage(props: { initial: Reading; client: Client | null; on
           </div>
           <p className="hint">
             {r.schools.length === 0
-              ? '这条是加流派之前建的，按旧写法分段。勾选流派后要重新复制提示词问 Claude。'
+              ? '这条是加流派之前建的，按旧写法分段。勾选流派后要重新复制提示词生成解读。'
               : r.schools.length > 1
                 ? '各派分开写，最后对照哪里一致、哪里相反。'
                 : '只用一派看，不写对照。'}
           </p>
-          <h2 className="sub">客人想重点看什么</h2>
           {r.kind === 'year' && (
-            <label className="field inline-field">
+            <label className="field inline-field year-field">
               <span>看哪一年</span>
               <input inputMode="numeric" value={r.year} onChange={(e) => change({ year: Number(e.target.value.replace(/\D/g, '').slice(0, 4)) || new Date().getFullYear() })} />
             </label>
           )}
-          <textarea rows={2} placeholder="可以不填。比如：明年适合换工作吗" value={r.focus} onChange={(e) => change({ focus: e.target.value })} />
         </li>
 
         <li>
@@ -116,16 +114,15 @@ export function ReadingPage(props: { initial: Reading; client: Client | null; on
             </details>
           ) : (
             <p className="error">
-              {client ? '客人的出生信息不完整，排不了盘。' : '找不到这位客人的档案，排不了盘。'}
+              {client ? '命主的出生信息不完整，排不了盘。' : '找不到这位命主，排不了盘。'}
               {client && <button type="button" className="link" onClick={props.onOpenClient}>去补全</button>}
             </p>
           )}
         </li>
 
         <li>
-          <h2>请 Claude 写解读</h2>
-          <p className="hint">点下方「复制提示词」，到 Claude 里粘贴发送；写好后复制它的回复，回来点「粘贴解读」。可以直接在框里修改。</p>
-          <textarea className="interp" rows={14} placeholder="解读会出现在这里" value={r.interpretation} onChange={(e) => change({ interpretation: e.target.value })} />
+          <h2>解读</h2>
+          <textarea className="interp" rows={14} placeholder="粘贴或直接写解读" value={r.interpretation} onChange={(e) => change({ interpretation: e.target.value })} />
           {hasText && (
             <p className={parsed.kind === 'sections' ? 'hint ok' : 'hint'}>
               {parsed.kind === 'sections' ? `已识别全部 ${titles.length} 段，导出会按段排版。` : `识别到 ${found}/${titles.length} 段标题，缺的话导出时按整篇排版。应有：${titles.join('、')}。`}
@@ -134,7 +131,7 @@ export function ReadingPage(props: { initial: Reading; client: Client | null; on
         </li>
 
         <li>
-          <h2>发给客人</h2>
+          <h2>导出</h2>
           <div className="export-row">
             <div className="seg">
               <button type="button" className={theme === 'day' ? 'on' : ''} onClick={() => change({ exportTheme: 'day' })}>浅色长图</button>
@@ -143,7 +140,7 @@ export function ReadingPage(props: { initial: Reading; client: Client | null; on
           </div>
           <div className="export-row">
             <button type="button" className={`btn${hasText ? ' go' : ''}`} disabled={!hasText || !chart} onClick={() => setPreview(true)}>生成长图</button>
-            <button type="button" className="btn" disabled={!hasText || !ready} onClick={() => chart && client && copy(toWechatText(r, client, chart, parsed), '微信文字已复制')}>复制微信文字</button>
+            <button type="button" className="btn" disabled={!hasText || !ready} onClick={() => chart && client && copy(toWechatText(r, client, chart, parsed, props.signature), '微信文字已复制')}>复制微信文字</button>
           </div>
           {!hasText && <p className="hint">有了解读才能导出。</p>}
         </li>
@@ -153,7 +150,7 @@ export function ReadingPage(props: { initial: Reading; client: Client | null; on
 
       <div className="action-bar">
         {flash && <div className="toast" role="status">{flash}</div>}
-        <button type="button" className={`btn${!hasText ? ' go' : ''}`} disabled={!ready} onClick={() => chart && client && copy(buildPrompt(r, client, chart), '提示词已复制，去 Claude 粘贴')}>复制提示词</button>
+        <button type="button" className={`btn${!hasText ? ' go' : ''}`} disabled={!ready} onClick={() => chart && client && copy(buildPrompt(r, client, chart), '提示词已复制')}>复制提示词</button>
         <button type="button" className="btn" onClick={paste}>粘贴解读</button>
         <button
           type="button"
@@ -169,7 +166,7 @@ export function ReadingPage(props: { initial: Reading; client: Client | null; on
 
       {preview && chart && (
         <ExportModal fileName={`八字-${name}-${readingTitle(r)}-${formatDate(r.createdAt)}.png`} onClose={() => setPreview(false)}>
-          <LongImage reading={r} name={name} chart={chart} parsed={parsed} theme={theme} />
+          <LongImage reading={r} name={name} chart={chart} parsed={parsed} theme={theme} signature={props.signature} />
         </ExportModal>
       )}
       {fallback && <TextModal title={fallback.title} text={fallback.text} onClose={() => setFallback(null)} />}

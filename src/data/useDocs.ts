@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { Client, Doc, Reading } from '../domain/types';
+import type { Client, Doc, Reading, Settings } from '../domain/types';
 import { claimLocalFor, loadLocal, writeLocal, type LocalState } from './local';
 import { idsToPush, mergeDocs, sortByCreatedDesc } from './merge';
 import { deleteRemote, fetchRemote, pushRemote } from './remote';
@@ -104,10 +104,12 @@ export function useDocs(userId: string) {
 
   const clients = useMemo(() => view.docs.filter((d): d is Client => d.type === 'client'), [view.docs]);
   const readings = useMemo(() => view.docs.filter((d): d is Reading => d.type === 'reading'), [view.docs]);
+  const settings = useMemo(() => view.docs.find((d): d is Settings => d.type === 'settings') ?? null, [view.docs]);
 
   return {
     clients,
     readings,
+    settings,
     loaded,
     synced: view.pending.length === 0 && view.deleting.length === 0,
     saveDoc,

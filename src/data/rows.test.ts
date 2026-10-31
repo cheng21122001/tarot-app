@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { newClient, newReading, type Client } from '../domain/types';
+import { newClient, newReading, newSettings, type Client } from '../domain/types';
 import { fromRow, toRow, type Row } from './rows';
 
 const client: Client = { ...newClient(), name: '小林', note: '做设计', birth: { calendar: 'lunar', date: '1998-05-03', leapMonth: true, time: null, gender: 'male' } };
@@ -23,5 +23,12 @@ describe('rows', () => {
     };
     expect(fromRow(tarot)).toBeNull();
     expect(fromRow({ ...tarot, spread_preset: 'deleted', cards: [null, null, null] })).toBeNull();
+  });
+});
+
+describe('settings row', () => {
+  it('round-trips the signature', () => {
+    const s = { ...newSettings(), signature: '小艾' };
+    expect(fromRow(toRow(s))).toEqual(s);
   });
 });

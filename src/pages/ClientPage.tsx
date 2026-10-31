@@ -19,24 +19,24 @@ export function ClientPage(props: {
 }) {
   const { value: c, change, discard, status } = useAutosave(props.initial, props.onSave, isClientBlank);
   const chart = buildChart(c.birth, new Date().getFullYear());
-  // 出生信息已经能排盘的老客人默认收起表单，新客人或信息不全时展开。
+  // 出生信息已经能排盘的默认收起表单，新建或信息不全时展开。
   const [editing, setEditing] = useState(() => !buildChart(props.initial.birth, 2000) || !props.initial.name.trim());
   const remove = useCallback(() => {
     const n = props.readings.length;
-    if (!window.confirm(`删除客人「${c.name || '未填称呼'}」${n ? `和 TA 的 ${n} 次测算` : ''}？手机和电脑上都会消失，不能恢复。`)) return;
+    if (!window.confirm(`删除命主「${c.name || '未填称呼'}」${n ? `和 TA 的 ${n} 次测算` : ''}？手机和电脑上都会消失，不能恢复。`)) return;
     discard();
     props.onDelete();
   }, [c.name, discard, props]);
 
   return (
     <div className="page">
-      <PageBar crumbs={[{ label: '客人', onClick: props.onHome }]} status={isClientBlank(c) ? null : status} />
+      <PageBar crumbs={[{ label: '命主', onClick: props.onHome }]} status={isClientBlank(c) ? null : status} />
 
       {editing ? (
         <section className="block">
           <label className="field">
             <span>称呼</span>
-            <input value={c.name} placeholder="客人怎么称呼" onChange={(e) => change({ name: e.target.value })} />
+            <input value={c.name} placeholder="怎么称呼" onChange={(e) => change({ name: e.target.value })} />
           </label>
           <BirthEditor birth={c.birth} onChange={(birth) => change({ birth })} />
           <label className="field">
@@ -82,7 +82,6 @@ export function ClientPage(props: {
                 <button type="button" className="row" onClick={() => props.onOpenReading(r.id)}>
                   <span className="row-main">
                     <span className="row-title">{readingTitle(r)}</span>
-                    {r.focus.trim() && <span className="row-sub">{r.focus.trim()}</span>}
                   </span>
                   <span className="row-side">
                     {formatDate(r.createdAt)}
@@ -96,7 +95,7 @@ export function ClientPage(props: {
       )}
 
       {!isClientBlank(c) && (
-        <button type="button" className="link danger" onClick={remove}>删除这位客人</button>
+        <button type="button" className="link danger" onClick={remove}>删除这位命主</button>
       )}
     </div>
   );
