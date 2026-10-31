@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { formatDate, searchReadings } from './search';
+import { formatDate, groupByMonth, searchReadings } from './search';
 import { newReading } from './types';
 
 const a = { ...newReading(), clientName: '小林', question: '合作还继续吗' };
-const b = { ...newReading(), clientName: 'Amy', question: '他会回来吗' };
+const b = { ...newReading(), clientName: 'Amy', question: '他会回来吗', cards: [{ id: 'major-16', reversed: true }, null, null] as typeof a.cards };
 
 describe('searchReadings', () => {
   it('returns all for empty query', () => {
@@ -13,6 +13,21 @@ describe('searchReadings', () => {
     expect(searchReadings([a, b], '小林')).toEqual([a]);
     expect(searchReadings([a, b], '回来')).toEqual([b]);
     expect(searchReadings([a, b], 'amy')).toEqual([b]);
+  });
+  it('matches drawn card names', () => {
+    expect(searchReadings([a, b], '塔')).toEqual([b]);
+  });
+});
+
+describe('groupByMonth', () => {
+  it('splits a newest-first list into local months, keeping order', () => {
+    const at = (m: number, d: number) => ({ ...newReading(), createdAt: new Date(2026, m, d, 12).toISOString() });
+    const list = [at(9, 20), at(9, 3), at(8, 30), at(7, 1)];
+    expect(groupByMonth(list).map((g) => [g.label, g.items.length])).toEqual([
+      ['2026年10月', 2],
+      ['2026年9月', 1],
+      ['2026年8月', 1],
+    ]);
   });
 });
 

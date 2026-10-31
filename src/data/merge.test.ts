@@ -20,14 +20,25 @@ describe('mergeReadings', () => {
     const t = '2026-09-01T00:00:00Z';
     expect(mergeReadings([make('a', t, t, 'L')], [make('a', t, t, 'R')])[0].clientName).toBe('R');
   });
+
+  it('keeps unpushed local records but drops ones deleted on another device', () => {
+    const t = '2026-09-01T00:00:00Z';
+    const merged = mergeReadings([make('unpushed', t, t), make('gone', t, t)], [], ['unpushed']);
+    expect(merged.map((r) => r.id)).toEqual(['unpushed']);
+  });
+
+  it('hides remote records that are being deleted locally', () => {
+    const t = '2026-09-01T00:00:00Z';
+    expect(mergeReadings([], [make('a', t, t), make('b', t, t)], [], ['a']).map((r) => r.id)).toEqual(['b']);
+  });
 });
 
 describe('idsToPush', () => {
-  it('pushes pending, missing-remotely and locally newer records', () => {
+  it('pushes pending and locally newer records', () => {
     const t1 = '2026-09-01T00:00:00Z';
     const t2 = '2026-09-02T00:00:00Z';
-    const local = [make('pending', t1, t1), make('new', t1, t1), make('newer', t1, t2), make('same', t1, t1)];
+    const local = [make('pending', t1, t1), make('newer', t1, t2), make('same', t1, t1)];
     const remote = [make('pending', t1, t1), make('newer', t1, t1), make('same', t1, t1)];
-    expect(idsToPush(local, remote, ['pending']).sort()).toEqual(['new', 'newer', 'pending']);
+    expect(idsToPush(local, remote, ['pending']).sort()).toEqual(['newer', 'pending']);
   });
 });

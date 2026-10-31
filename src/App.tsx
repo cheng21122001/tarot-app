@@ -25,7 +25,7 @@ export default function App() {
 }
 
 function Shell({ userId }: { userId: string }) {
-  const { readings, loaded, synced, saveReading } = useReadings(userId);
+  const { readings, loaded, synced, saveReading, deleteReading } = useReadings(userId);
   const [hash, go] = useHashRoute();
   const drafts = useRef(new Map<string, Reading>());
 
@@ -34,7 +34,19 @@ function Shell({ userId }: { userId: string }) {
   if (match) {
     const r = readings.find((x) => x.id === match[1]) ?? drafts.current.get(match[1]);
     if (r) {
-      page = <ReadingPage key={r.id} initial={r} onSave={saveReading} onBack={() => go('#/')} />;
+      page = (
+        <ReadingPage
+          key={r.id}
+          initial={r}
+          onSave={saveReading}
+          onDelete={() => {
+            drafts.current.delete(r.id);
+            deleteReading(r.id);
+            go('#/');
+          }}
+          onBack={() => go('#/')}
+        />
+      );
     } else if (loaded) {
       page = (
         <div className="page">

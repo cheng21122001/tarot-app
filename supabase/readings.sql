@@ -24,3 +24,6 @@ create policy readings_insert_own on public.readings for insert with check (user
 
 drop policy if exists readings_update_own on public.readings;
 create policy readings_update_own on public.readings for update using (user_id = auth.uid()) with check (user_id = auth.uid());
+
+drop policy if exists readings_delete_own on public.readings;
+create policy readings_delete_own on public.readings for delete using (user_id = auth.uid());

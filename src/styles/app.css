@@ -27,3 +27,5 @@ textarea { resize: vertical; line-height: 1.7; }
 @media (min-width: 760px) { .modal-backdrop { align-items: center; } .modal { border-radius: 12px; } }
 .offscreen { position: fixed; left: -20000px; top: 0; pointer-events: none; }
 .sync-badge { position: fixed; bottom: calc(16px + env(safe-area-inset-bottom)); left: 16px; font-size: 12px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px; background: var(--bg); z-index: 10; }
+.primary.ghost { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+.text-btn.danger { color: var(--danger); margin-left: -8px; }

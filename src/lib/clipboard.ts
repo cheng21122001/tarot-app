@@ -19,3 +19,12 @@ export async function copyText(text: string): Promise<boolean> {
     }
   }
 }
+
+// iOS 会弹出系统「粘贴」确认气泡；拒绝或不支持时返回 null。
+export async function readText(): Promise<string | null> {
+  try {
+    return await navigator.clipboard.readText();
+  } catch {
+    return null;
+  }
+}

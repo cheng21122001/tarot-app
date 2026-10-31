@@ -6,7 +6,7 @@ import { InterpretationSection } from './reading/InterpretationSection';
 import { QuestionSection } from './reading/QuestionSection';
 import './reading.css';
 
-export function ReadingPage({ initial, onSave, onBack }: { initial: Reading; onSave: (r: Reading) => void; onBack: () => void }) {
+export function ReadingPage({ initial, onSave, onDelete, onBack }: { initial: Reading; onSave: (r: Reading) => void; onDelete: () => void; onBack: () => void }) {
   const [reading, setReading] = useState(initial);
   const latest = useRef(reading);
   latest.current = reading;
@@ -42,6 +42,12 @@ export function ReadingPage({ initial, onSave, onBack }: { initial: Reading; onS
     };
   }, [flush]);
 
+  const remove = () => {
+    if (!window.confirm('删除这条测算记录？删除后手机和电脑上都会消失，不能恢复。')) return;
+    dirty.current = false;
+    onDelete();
+  };
+
   return (
     <div className="page">
       <button type="button" className="text-btn back" onClick={onBack}>‹ 记录</button>
@@ -49,6 +55,9 @@ export function ReadingPage({ initial, onSave, onBack }: { initial: Reading; onS
       <CardSlots reading={reading} onChange={onChange} />
       <InterpretationSection reading={reading} onChange={onChange} />
       <ExportSection reading={reading} onChange={onChange} />
+      <section className="section">
+        <button type="button" className="text-btn danger" onClick={remove}>删除这条记录</button>
+      </section>
     </div>
   );
 }
