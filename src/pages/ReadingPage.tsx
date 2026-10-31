@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { buildChart } from '../bazi/chart';
 import { ChartView } from '../components/ChartView';
+import { PageBar } from '../components/PageBar';
 import { TextModal } from '../components/TextModal';
 import { readingTitle, type Client, type Reading } from '../domain/types';
 import { ExportModal } from '../export/ExportModal';
@@ -17,7 +18,7 @@ import { toWechatText } from '../reading/wechat';
 const never = () => false;
 
 export function ReadingPage(props: { initial: Reading; client: Client | null; onSave: (r: Reading) => void; onDelete: () => void; onBack: () => void; onOpenClient: () => void }) {
-  const { value: r, change, discard } = useAutosave(props.initial, props.onSave, never);
+  const { value: r, change, discard, saveNow, status } = useAutosave(props.initial, props.onSave, never);
   const client = props.client;
   const chart = client ? buildChart(client.birth, r.year) : null;
   const parsed = useMemo(() => parseInterpretation(r.interpretation, SECTIONS[r.kind]), [r.interpretation, r.kind]);
@@ -41,7 +42,8 @@ export function ReadingPage(props: { initial: Reading; client: Client | null; on
     const text = (await readText())?.trim();
     if (!text) return say('读不到剪贴板，请长按下方文本框粘贴');
     if (hasText && !window.confirm('用剪贴板内容替换现在的解读？')) return;
-    change({ interpretation: text });
+    change({ interpretation: text }, true);
+    say('已粘贴并保存');
   };
 
   const remove = useCallback(() => {
@@ -54,7 +56,7 @@ export function ReadingPage(props: { initial: Reading; client: Client | null; on
 
   return (
     <div className="page">
-      <button type="button" className="text-btn back" onClick={props.onBack}>‹ 返回</button>
+      <PageBar title={name} status={status} onBack={props.onBack} />
       <header className="reading-head">
         <h1>{readingTitle(r)}</h1>
         <p>
@@ -85,11 +87,6 @@ export function ReadingPage(props: { initial: Reading; client: Client | null; on
 
       <section className="section">
         <h2>解读</h2>
-        <div className="actions">
-          <button type="button" className="primary" disabled={!chart || !client} onClick={() => chart && client && copy(buildPrompt(r, client, chart), '提示词已复制，去 Claude 粘贴')}>复制提示词</button>
-          <button type="button" className="primary ghost" onClick={paste}>粘贴解读</button>
-        </div>
-        {flash && <p className="hint">{flash}</p>}
         <textarea className="interp" rows={16} placeholder="粘贴 Claude 生成的解读，可直接修改" value={r.interpretation} onChange={(e) => change({ interpretation: e.target.value })} />
         {hasText && parsed.kind === 'plain' && <p className="hint">没有识别出全部分段标题（{SECTIONS[r.kind].join('、')}），导出时按整段排版</p>}
       </section>
@@ -113,6 +110,22 @@ export function ReadingPage(props: { initial: Reading; client: Client | null; on
       <section className="section">
         <button type="button" className="text-btn danger" onClick={remove}>删除这条测算</button>
       </section>
+
+      <div className="action-bar">
+        {flash && <div className="toast">{flash}</div>}
+        <button type="button" className="primary" disabled={!chart || !client} onClick={() => chart && client && copy(buildPrompt(r, client, chart), '提示词已复制，去 Claude 粘贴')}>复制提示词</button>
+        <button type="button" className="primary ghost" onClick={paste}>粘贴解读</button>
+        <button
+          type="button"
+          className="primary ghost"
+          onClick={() => {
+            saveNow();
+            say('已保存');
+          }}
+        >
+          保存
+        </button>
+      </div>
 
       {preview && chart && (
         <ExportModal fileName={`八字-${name}-${readingTitle(r)}-${formatDate(r.createdAt)}.png`} onClose={() => setPreview(false)}>

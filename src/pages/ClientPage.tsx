@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { buildChart } from '../bazi/chart';
 import { BirthEditor } from '../components/BirthEditor';
 import { ChartView } from '../components/ChartView';
+import { PageBar } from '../components/PageBar';
 import { isClientBlank, readingTitle, type Client, type Reading } from '../domain/types';
 import { useAutosave } from '../lib/useAutosave';
 import { formatDate } from '../reading/format';
@@ -16,7 +17,7 @@ export function ClientPage(props: {
   onOpenReading: (id: string) => void;
   onNewReading: (c: Client, kind: 'natal' | 'year', year: number) => void;
 }) {
-  const { value: c, change, discard } = useAutosave(props.initial, props.onSave, isClientBlank);
+  const { value: c, change, discard, status } = useAutosave(props.initial, props.onSave, isClientBlank);
   const chart = buildChart(c.birth, new Date().getFullYear());
   const remove = useCallback(() => {
     const n = props.readings.length;
@@ -27,7 +28,7 @@ export function ClientPage(props: {
 
   return (
     <div className="page">
-      <button type="button" className="text-btn back" onClick={props.onBack}>‹ 返回</button>
+      <PageBar title={c.name.trim() || '新客人'} status={isClientBlank(c) ? null : status} onBack={props.onBack} />
       <section className="section">
         <h2>客人</h2>
         <label className="field">
