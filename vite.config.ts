@@ -10,8 +10,8 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: '小艾塔罗',
-        short_name: '小艾塔罗',
+        name: '小艾',
+        short_name: '小艾',
         start_url: '/tarot-app/',
         scope: '/tarot-app/',
         display: 'standalone',

@@ -8,10 +8,10 @@ export interface ReadingRow {
   question: string;
   spread_preset: string;
   positions: string[];
-  cards: (CardPick | null)[];
+  // 前三项是三张牌；填了八字时第四项为 { birth }，旧版本只读前三项，不受影响。
+  cards: (CardPick | { birth: BirthInfo } | null)[];
   interpretation: string;
   export_theme: Theme | null;
-  birth?: BirthInfo | null;
 }
 
 const PRESET_VALUES: SpreadPreset[] = ['past_present_future', 'situation_obstacle_advice', 'you_them_outcome', 'custom'];
@@ -25,10 +25,9 @@ export function toRow(r: Reading): ReadingRow {
     question: r.question,
     spread_preset: r.spreadPreset,
     positions: [...r.positions],
-    cards: [...r.cards],
+    cards: r.birth ? [...r.cards, { birth: r.birth }] : [...r.cards],
     interpretation: r.interpretation,
     export_theme: r.exportTheme,
-    birth: r.birth,
   };
 }
 
@@ -36,6 +35,7 @@ export function toRow(r: Reading): ReadingRow {
 export function fromRow(row: ReadingRow): Reading {
   const positions = [0, 1, 2].map((i) => row.positions?.[i] ?? '') as Positions;
   const cards = [0, 1, 2].map((i) => row.cards?.[i] ?? null) as CardSlotsValue;
+  const extra = row.cards?.[3];
   const preset = PRESET_VALUES.includes(row.spread_preset as SpreadPreset) ? (row.spread_preset as SpreadPreset) : 'custom';
   return {
     id: row.id,
@@ -48,7 +48,7 @@ export function fromRow(row: ReadingRow): Reading {
     cards,
     interpretation: row.interpretation ?? '',
     exportTheme: row.export_theme === 'day' || row.export_theme === 'night' ? row.export_theme : null,
-    birth: normaliseBirth(row.birth),
+    birth: extra && 'birth' in extra ? normaliseBirth(extra.birth) : null,
   };
 }
 

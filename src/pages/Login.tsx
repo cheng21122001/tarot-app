@@ -18,7 +18,7 @@ export function Login() {
 
   return (
     <div className="page">
-      <h1>小艾塔罗</h1>
+      <h1>小艾</h1>
       <p className="hint">使用「河」和「小熊红黑榜」的账号登录</p>
       <form onSubmit={submit}>
         <label className="field">

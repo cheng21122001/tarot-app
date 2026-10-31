@@ -25,8 +25,6 @@ create policy readings_insert_own on public.readings for insert with check (user
 drop policy if exists readings_update_own on public.readings;
 create policy readings_update_own on public.readings for update using (user_id = auth.uid()) with check (user_id = auth.uid());
 
-drop policy if exists readings_delete_own on public.readings;
-create policy readings_delete_own on public.readings for delete using (user_id = auth.uid());
-
--- 八字：客人出生信息 { calendar, date, leapMonth, time, gender }，没填为 null。
-alter table public.readings add column if not exists birth jsonb;
+-- 表结构不变，以下两个约定由前端处理：
+-- 删除：没有 delete 权限，删除时把记录清空并设 spread_preset = 'deleted'，拉取时跳过。
+-- 八字：cards 前三项是三张牌，填了出生信息时第四项为 { "birth": {...} }。

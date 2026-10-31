@@ -11,7 +11,7 @@ export function ListPage({ readings, onOpen, onNew, onSignOut }: { readings: Rea
   return (
     <div className="page">
       <header className="list-header">
-        <h1>小艾塔罗</h1>
+        <h1>小艾</h1>
         <button type="button" className="text-btn" onClick={onSignOut}>退出</button>
       </header>
       <input type="search" placeholder="搜称呼、问题或牌名" value={query} onChange={(e) => setQuery(e.target.value)} />
