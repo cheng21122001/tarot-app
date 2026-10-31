@@ -1,30 +1,31 @@
-.li { width: 1080px; padding: 96px 80px 80px; font-family: "Noto Serif SC", "Songti SC", "STSong", serif; box-sizing: border-box; }
-.li p { margin: 0 0 18px; font-size: 40px; line-height: 1.8; }
-.li-top { text-align: center; padding-bottom: 48px; margin-bottom: 48px; }
-.li-kicker { font-size: 32px; letter-spacing: .3em; }
-.li-title { font-size: 72px; font-weight: 600; letter-spacing: .12em; margin: 28px 0 16px; }
-.li-meta { font-size: 34px; }
-.li-focus { font-size: 36px; line-height: 1.6; margin-top: 24px; }
-.li-chart { padding: 40px 0 8px; margin-bottom: 24px; }
-.li-pillars { display: flex; justify-content: center; gap: 64px; text-align: center; }
-.li-pillars div { display: flex; flex-direction: column; gap: 10px; min-width: 150px; }
-.li-pillars strong { font-size: 84px; font-weight: 600; line-height: 1.15; }
+/* 长图：宣纸或玄青底，四柱按五行上色，末尾朱砂印落款。字体统一用嵌入的 Noto Serif SC。 */
+.li { width: 1080px; padding: 110px 88px 96px; font-family: "Noto Serif SC", "Songti SC", "STSong", serif; box-sizing: border-box; }
+.li p { margin: 0 0 20px; font-size: 40px; line-height: 1.85; }
+.li-top { margin-bottom: 64px; }
+.li-name { font-size: 36px; }
+.li-title { font-size: 88px; font-weight: 600; line-height: 1.2; margin: 12px 0 0; }
+.li-focus { font-size: 38px; line-height: 1.6; margin-top: 28px; padding-left: 28px; border-left: 6px solid currentColor; }
+.li-pillars { display: flex; justify-content: space-between; text-align: center; padding: 48px 24px; border-radius: 28px; }
+.li-pillars div { display: flex; flex-direction: column; gap: 10px; flex: 1; }
 .li-pillars small { font-size: 28px; }
-.li-chart-meta { text-align: center; font-size: 32px; line-height: 1.8; margin-top: 36px; }
-.li-sec { margin-top: 64px; }
-.li-sec h4 { margin: 0 0 22px; font-size: 44px; font-weight: 600; letter-spacing: .08em; }
-.li-sign { text-align: center; font-size: 36px; margin-top: 88px; letter-spacing: .2em; }
+.li-g { font-size: 104px; font-weight: 600; line-height: 1.12; }
+.li-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 40px; font-size: 32px; margin: 32px 8px 0; }
+.li-facts > span { white-space: nowrap; }
+.li-sec { margin-top: 80px; }
+.li-sec h4 { margin: 0 0 24px; font-size: 48px; font-weight: 600; }
+.li-sign { display: flex; justify-content: flex-end; align-items: center; gap: 32px; margin-top: 110px; }
+.li-date { font-size: 30px; }
+.li-seal { display: grid; grid-template-columns: 1fr; width: 120px; height: 120px; place-items: center; border-radius: 10px; font-size: 48px; font-weight: 600; line-height: 1; padding: 6px 0; }
 
-.li-day { background: #f4efe6; color: #2b2620; }
-.li-day .li-top { border-bottom: 3px solid #b89a5e; }
-.li-day .li-kicker, .li-day .li-pillars small, .li-day .li-focus { color: #8a7350; }
-.li-day .li-meta, .li-day .li-chart-meta { color: #7a6f60; }
-.li-day .li-title, .li-day .li-pillars strong, .li-day .li-sec h4, .li-day .li-sign { color: #6d5530; }
-.li-day .li-chart { border-bottom: 3px solid #d9ccb2; padding-bottom: 48px; }
+.li-day { background: #f3f4ef; color: #1f2622; }
+.li-day .li-name, .li-day .li-pillars small, .li-day .li-facts, .li-day .li-date { color: #5d6761; }
+.li-day .li-focus { color: #5d6761; }
+.li-day .li-pillars { background: #fbfbf8; border: 3px solid #d5dad3; }
+.li-day .li-seal { background: #a8322b; color: #fbf7f4; }
+.li-day .wx-wood { color: #2e7a57; } .li-day .wx-fire { color: #c94a2a; } .li-day .wx-earth { color: #966b1f; } .li-day .wx-metal { color: #6c7580; } .li-day .wx-water { color: #2b4c7c; }
 
-.li-night { background: #141a2b; color: #d6d1c4; }
-.li-night .li-kicker, .li-night .li-pillars small, .li-night .li-sec h4, .li-night .li-sign, .li-night .li-focus { color: #c9a95c; }
-.li-night .li-title, .li-night .li-pillars strong { color: #f3ecd9; }
-.li-night .li-meta, .li-night .li-chart-meta { color: #8e96ad; }
-.li-night .li-top { border-bottom: 3px solid #2e3650; }
-.li-night .li-sec { border-top: 3px solid #2e3650; padding-top: 44px; }
+.li-night { background: #161c1f; color: #e4e7e1; }
+.li-night .li-name, .li-night .li-pillars small, .li-night .li-facts, .li-night .li-date, .li-night .li-focus { color: #a3aca6; }
+.li-night .li-pillars { background: #1f272a; border: 3px solid #2e383b; }
+.li-night .li-seal { background: #c2473a; color: #1a1110; }
+.li-night .wx-wood { color: #63b48e; } .li-night .wx-fire { color: #ef7b5c; } .li-night .wx-earth { color: #d3a85a; } .li-night .wx-metal { color: #aab3bd; } .li-night .wx-water { color: #7fa5dc; }

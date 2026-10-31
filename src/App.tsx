@@ -45,7 +45,7 @@ function Shell({ userId }: { userId: string }) {
   const notFound = (
     <div className="page">
       <p className="empty">找不到这条记录</p>
-      <button type="button" className="text-btn" onClick={() => go('#/')}>返回首页</button>
+      <button type="button" className="link" onClick={() => go("#/")}>返回首页</button>
     </div>
   );
 

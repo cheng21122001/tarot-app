@@ -30,7 +30,7 @@ export function Login() {
           <input type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} required />
         </label>
         {error && <p className="error">{error}</p>}
-        <button className="primary" disabled={busy}>{busy ? '登录中…' : '登录'}</button>
+        <button className="btn go" disabled={busy}>{busy ? '登录中…' : '登录'}</button>
       </form>
     </div>
   );

@@ -46,14 +46,14 @@ export function ExportModal({ fileName, onClose, children }: { fileName: string;
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal export" onClick={(e) => e.stopPropagation()}>
         <div className="export-head">
-          <button type="button" className="text-btn" onClick={onClose}>关闭</button>
-          <button type="button" className="primary" disabled={state.status !== 'done'} onClick={save}>保存 / 分享</button>
+          <button type="button" className="link" onClick={onClose}>关闭</button>
+          <button type="button" className="btn go" disabled={state.status !== 'done'} onClick={save}>保存或分享</button>
         </div>
         <div className="export-body">
           {state.status === 'working' && <p className="hint">正在生成…</p>}
           {state.status === 'error' && (
             <p className="hint">
-              生成失败 <button type="button" className="text-btn" onClick={() => setAttempt((a) => a + 1)}>重试</button>，也可以先用「复制微信文字」
+              生成失败 <button type="button" className="link" onClick={() => setAttempt((a) => a + 1)}>重试</button>，也可以先用「复制微信文字」
             </p>
           )}
           {state.status === 'done' && (

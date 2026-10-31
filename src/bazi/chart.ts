@@ -16,6 +16,27 @@ export function ganWuXing(gan: string): WuXing {
   return WU_XING[Math.floor(GANS.indexOf(gan) / 2)];
 }
 
+const ZHI_WU_XING: Record<string, WuXing> = { 子: '水', 丑: '土', 寅: '木', 卯: '木', 辰: '土', 巳: '火', 午: '火', 未: '土', 申: '金', 酉: '金', 戌: '土', 亥: '水' };
+const WX_KEY: Record<WuXing, string> = { 木: 'wood', 火: 'fire', 土: 'earth', 金: 'metal', 水: 'water' };
+
+// 天干或地支所属五行的英文键，用作配色的 class 名；不是干支时返回 null。
+export function wxKey(ch: string): string | null {
+  const w = GANS.includes(ch) ? ganWuXing(ch) : ZHI_WU_XING[ch];
+  return w ? WX_KEY[w] : null;
+}
+
+export const WU_XING_ORDER = WU_XING;
+
+export interface Today {
+  ganZhi: [string, string, string]; // 年、月、日
+  lunar: string;
+}
+
+export function today(now: Date = new Date()): Today {
+  const l = Solar.fromYmd(now.getFullYear(), now.getMonth() + 1, now.getDate()).getLunar();
+  return { ganZhi: [l.getYearInGanZhiExact(), l.getMonthInGanZhiExact(), l.getDayInGanZhi()], lunar: `农历${l.getMonthInChinese()}月${l.getDayInChinese()}` };
+}
+
 // 以日干为我，求另一天干的十神：同性为偏（比肩、食神、偏财、七杀、偏印），异性为正。
 export function shiShen(dayGan: string, gan: string): string {
   const d = GANS.indexOf(dayGan);

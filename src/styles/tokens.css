@@ -1,25 +1,43 @@
+/* 宣纸、墨、朱砂，加五行五色。朱砂只给「下一步」按钮、当前大运和落款印章用。 */
 :root {
-  --bg: #f4efe6;
-  --surface: #fbf8f2;
-  --ink: #2b2620;
-  --muted: #7a6f60;
-  --accent: #6d5530;
-  --gold: #b89a5e;
-  --line: #d9ccb2;
-  --danger: #9b3b2e;
-  --font: "Noto Serif SC", "Songti SC", "STSong", serif;
+  --paper: #eef0eb;
+  --sheet: #f8f9f6;
+  --ink: #1f2622;
+  --ink-2: #5d6761;
+  --ink-3: #8b948e;
+  --rule: #d5dad3;
+  --cinnabar: #a8322b;
+  --on-cinnabar: #fbf7f4;
+  --wood: #2e7a57;
+  --fire: #c94a2a;
+  --earth: #966b1f;
+  --metal: #6c7580;
+  --water: #2b4c7c;
+  --sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  --kai: "LXGW WenKai Screen", "Kaiti SC", "STKaiti", "KaiTi", serif;
+  --radius: 10px;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #141a2b;
-    --surface: #1b2238;
-    --ink: #e6e1d3;
-    --muted: #8e96ad;
-    --accent: #c9a95c;
-    --gold: #c9a95c;
-    --line: #2e3650;
-    --danger: #e08a7a;
+    --paper: #151a1c;
+    --sheet: #1d2427;
+    --ink: #e4e7e1;
+    --ink-2: #a3aca6;
+    --ink-3: #737d78;
+    --rule: #2e383b;
+    --cinnabar: #e0604f;
+    --on-cinnabar: #1a1110;
+    --wood: #63b48e;
+    --fire: #ef7b5c;
+    --earth: #d3a85a;
+    --metal: #aab3bd;
+    --water: #7fa5dc;
     color-scheme: dark;
   }
 }
+.wx-wood { color: var(--wood); }
+.wx-fire { color: var(--fire); }
+.wx-earth { color: var(--earth); }
+.wx-metal { color: var(--metal); }
+.wx-water { color: var(--water); }

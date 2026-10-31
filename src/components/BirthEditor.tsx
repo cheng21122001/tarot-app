@@ -31,9 +31,9 @@ export function BirthEditor({ birth: b, onChange }: { birth: BirthInfo; onChange
     <>
       <div className="field">
         <span>出生日期</span>
-        <div className="chips">
-          <button type="button" className={`chip${!lunar ? ' on' : ''}`} onClick={() => onChange(switchCalendar(b, 'solar'))}>公历</button>
-          <button type="button" className={`chip${lunar ? ' on' : ''}`} onClick={() => onChange(switchCalendar(b, 'lunar'))}>农历</button>
+        <div className="seg">
+          <button type="button" className={!lunar ? 'on' : ''} onClick={() => onChange(switchCalendar(b, 'solar'))}>公历</button>
+          <button type="button" className={lunar ? 'on' : ''} onClick={() => onChange(switchCalendar(b, 'lunar'))}>农历</button>
         </div>
         <div className="birth-date">
           <label className="unit">
@@ -72,9 +72,9 @@ export function BirthEditor({ birth: b, onChange }: { birth: BirthInfo; onChange
         </div>
         <div className="field">
           <span>性别</span>
-          <div className="chips">
-            <button type="button" className={`chip${b.gender === 'female' ? ' on' : ''}`} onClick={() => set({ gender: 'female' })}>女</button>
-            <button type="button" className={`chip${b.gender === 'male' ? ' on' : ''}`} onClick={() => set({ gender: 'male' })}>男</button>
+          <div className="seg">
+            <button type="button" className={b.gender === 'female' ? 'on' : ''} onClick={() => set({ gender: 'female' })}>女</button>
+            <button type="button" className={b.gender === 'male' ? 'on' : ''} onClick={() => set({ gender: 'male' })}>男</button>
           </div>
         </div>
       </div>

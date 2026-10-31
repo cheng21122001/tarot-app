@@ -4,7 +4,7 @@ export function TextModal({ title, text, onClose }: { title: string; text: strin
       <div className="modal" style={{ padding: 16 }} onClick={(e) => e.stopPropagation()}>
         <p className="hint">{title}</p>
         <textarea readOnly rows={16} value={text} onFocus={(e) => e.currentTarget.select()} />
-        <button type="button" className="text-btn" onClick={onClose}>关闭</button>
+        <button type="button" className="btn" onClick={onClose}>关闭</button>
       </div>
     </div>
   );

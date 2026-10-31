@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { BirthInfo } from '../domain/types';
-import { buildChart, pillarsText, shiShen, switchCalendar, wuXingText } from './chart';
+import { buildChart, pillarsText, shiShen, switchCalendar, today, wuXingText, wxKey } from './chart';
 
 const base: BirthInfo = { calendar: 'solar', date: '1998-03-12', leapMonth: false, time: '14:30', gender: 'female' };
 
@@ -72,5 +72,14 @@ describe('switchCalendar', () => {
   });
   it('just flips the flag for an incomplete date', () => {
     expect(switchCalendar({ ...base, date: '' }, 'lunar')).toMatchObject({ calendar: 'lunar', date: '' });
+  });
+});
+
+describe('wxKey and today', () => {
+  it('maps stems and branches to element keys', () => {
+    expect(['甲', '丁', '戊', '辛', '癸', '寅', '午', '丑', '酉', '子', 'x'].map(wxKey)).toEqual(['wood', 'fire', 'earth', 'metal', 'water', 'wood', 'fire', 'earth', 'metal', 'water', null]);
+  });
+  it('gives today in gan zhi', () => {
+    expect(today(new Date(2026, 9, 31))).toEqual({ ganZhi: ['丙午', '戊戌', '戊寅'], lunar: '农历九月廿二' });
   });
 });
