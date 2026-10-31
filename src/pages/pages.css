@@ -44,7 +44,12 @@
 
 /* 顶部固定栏 */
 .page-bar { position: sticky; top: 0; z-index: 15; display: flex; justify-content: space-between; align-items: center; margin: 0 -16px 12px; padding: calc(6px + env(safe-area-inset-top)) 8px 6px; background: var(--paper); border-bottom: 1px solid var(--rule); }
-.bar-back { border: 0; background: none; font-size: 16px; padding: 8px; color: var(--ink); }
+.crumbs { display: flex; align-items: center; min-width: 0; overflow: hidden; }
+.crumbs > span { display: inline-flex; align-items: center; min-width: 0; }
+.crumbs > span + span::before { content: "›"; color: var(--ink-3); padding: 0 2px; }
+.crumb { border: 0; background: none; font-size: 16px; padding: 10px 8px; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-height: 44px; }
+.crumb.first { color: var(--ink); }
+.crumbs > span:last-child .crumb { font-family: var(--kai); font-size: 17px; color: var(--ink); }
 .save-status { font-size: 13px; color: var(--ink-3); padding-right: 8px; }
 .save-status.busy { color: var(--ink-2); }
 

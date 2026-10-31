@@ -1,9 +1,10 @@
 import type { Session } from '@supabase/supabase-js';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from './data/supabase';
 import { useDocs } from './data/useDocs';
 import { newClient, newReading, type Client, type Doc } from './domain/types';
 import { useHashRoute } from './lib/useHashRoute';
+import { useSwipeBack } from './lib/useSwipeBack';
 import { ClientPage } from './pages/ClientPage';
 import { HomePage } from './pages/HomePage';
 import { Login } from './pages/Login';
@@ -30,7 +31,13 @@ function Shell({ userId }: { userId: string }) {
   const { clients, readings, loaded, synced, saveDoc, deleteDocs } = useDocs(userId);
   const [hash, go] = useHashRoute();
   const drafts = useRef(new Map<string, Client>());
-  const back = () => (window.history.length > 1 ? window.history.back() : go('#/'));
+  const route = hash.match(/^#\/([cr])\/([0-9a-f-]+)$/);
+  // 返回上一页；直接打开深层链接没有上一页时，测算回记录、客人回客人列表。
+  const back = useCallback(() => {
+    if (window.history.length > 1) window.history.back();
+    else go(route?.[1] === 'c' ? '#/clients' : '#/');
+  }, [go, route?.[1]]);
+  useSwipeBack(Boolean(route), back);
 
   const startReading = (c: Client, kind: 'natal' | 'year', year: number) => {
     const r = newReading(c, kind, year);
@@ -50,7 +57,6 @@ function Shell({ userId }: { userId: string }) {
   );
 
   let page = null;
-  const route = hash.match(/^#\/([cr])\/([0-9a-f-]+)$/);
   if (route?.[1] === 'c') {
     const c = clients.find((x) => x.id === route[2]) ?? drafts.current.get(route[2]);
     if (c) {
@@ -70,7 +76,7 @@ function Shell({ userId }: { userId: string }) {
             deleteDocs([c.id, ...own.map((r) => r.id)]);
             go('#/clients');
           }}
-          onBack={back}
+          onHome={() => go('#/clients')}
           onOpenReading={(id) => go(`#/r/${id}`)}
           onNewReading={startReading}
         />
@@ -90,7 +96,7 @@ function Shell({ userId }: { userId: string }) {
             deleteDocs([r.id]);
             back();
           }}
-          onBack={back}
+          onHome={() => go('#/')}
           onOpenClient={() => go(`#/c/${r.clientId}`)}
         />
       );

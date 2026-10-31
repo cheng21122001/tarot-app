@@ -18,9 +18,10 @@ import { toWechatText } from '../reading/wechat';
 
 const never = () => false;
 
-export function ReadingPage(props: { initial: Reading; client: Client | null; onSave: (r: Reading) => void; onDelete: () => void; onBack: () => void; onOpenClient: () => void }) {
+export function ReadingPage(props: { initial: Reading; client: Client | null; onSave: (r: Reading) => void; onDelete: () => void; onHome: () => void; onOpenClient: () => void }) {
   const { value: r, change, discard, saveNow, status } = useAutosave(props.initial, props.onSave, never);
   const client = props.client;
+  const name = client?.name.trim() || r.clientName || '客人';
   const chart = client ? buildChart(client.birth, r.year) : null;
   const titles = SECTIONS[r.kind];
   const parsed = useMemo(() => parseInterpretation(r.interpretation, titles), [r.interpretation, titles]);
@@ -55,12 +56,11 @@ export function ReadingPage(props: { initial: Reading; client: Client | null; on
     props.onDelete();
   }, [discard, props]);
 
-  const name = client?.name.trim() || r.clientName || '客人';
   const ready = Boolean(chart && client);
 
   return (
     <div className="page">
-      <PageBar backLabel="返回" status={status} onBack={props.onBack} />
+      <PageBar crumbs={[{ label: '测算记录', onClick: props.onHome }, ...(client ? [{ label: name, onClick: props.onOpenClient }] : [])]} status={status} />
       <header className="reading-head">
         <h1>{readingTitle(r)}</h1>
         <p>

@@ -57,7 +57,7 @@ export function ChartView({ chart: c, showYear = false }: { chart: BaziChart; sh
       </dl>
 
       <h3 className="chart-h">大运</h3>
-      <div className="dayun">
+      <div className="dayun" data-hscroll>
         {c.daYun.map((d) => (
           <div key={d.startYear} className={d === c.currentDaYun ? 'now' : ''}>
             <small>{d.shiShen}</small>

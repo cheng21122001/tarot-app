@@ -13,7 +13,7 @@ export function ClientPage(props: {
   readings: Reading[];
   onSave: (c: Client) => void;
   onDelete: () => void;
-  onBack: () => void;
+  onHome: () => void;
   onOpenReading: (id: string) => void;
   onNewReading: (c: Client, kind: 'natal' | 'year', year: number) => void;
 }) {
@@ -30,7 +30,7 @@ export function ClientPage(props: {
 
   return (
     <div className="page">
-      <PageBar backLabel="客人" status={isClientBlank(c) ? null : status} onBack={props.onBack} />
+      <PageBar crumbs={[{ label: '客人', onClick: props.onHome }]} status={isClientBlank(c) ? null : status} />
 
       {editing ? (
         <section className="block">
