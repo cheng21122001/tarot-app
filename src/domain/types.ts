@@ -20,6 +20,12 @@ export interface Client {
 
 export type ReadingKind = 'natal' | 'year';
 
+// 取用神的流派。格局偏看成就与方向，调候偏看心态与状态，扶抑看日主强弱与承受力。
+export type School = 'geju' | 'tiaohou' | 'fuyi';
+export const SCHOOLS: School[] = ['geju', 'tiaohou', 'fuyi'];
+export const SCHOOL_LABELS: Record<School, string> = { geju: '格局派', tiaohou: '调候派', fuyi: '扶抑派' };
+export const SCHOOL_HINTS: Record<School, string> = { geju: '看成就与方向', tiaohou: '看心态与状态', fuyi: '看强弱与喜忌' };
+
 export interface Reading {
   type: 'reading';
   id: string;
@@ -30,6 +36,7 @@ export interface Reading {
   kind: ReadingKind;
   year: number; // 流年运势看的年份；命盘总论为建档当年，用来定当前大运流年
   focus: string; // 客人想重点看的方面，可空
+  schools: School[]; // 空数组为加入流派之前的旧测算，按旧的分段写法
   interpretation: string;
   exportTheme: Theme | null;
 }
@@ -63,6 +70,7 @@ export function newReading(client: Client, kind: ReadingKind, year: number, now:
     kind,
     year,
     focus: '',
+    schools: ['geju', 'tiaohou'],
     interpretation: '',
     exportTheme: null,
   };

@@ -4,7 +4,7 @@ import { ChartView } from '../components/ChartView';
 import { Gz } from '../components/Gz';
 import { PageBar } from '../components/PageBar';
 import { TextModal } from '../components/TextModal';
-import { readingTitle, type Client, type Reading } from '../domain/types';
+import { readingTitle, SCHOOL_HINTS, SCHOOL_LABELS, SCHOOLS, type Client, type Reading, type School } from '../domain/types';
 import { ExportModal } from '../export/ExportModal';
 import { LongImage } from '../export/LongImage';
 import { copyText, readText } from '../lib/clipboard';
@@ -13,7 +13,7 @@ import { useSystemTheme } from '../lib/useSystemTheme';
 import { buildPrompt } from '../prompt/template';
 import { formatDate } from '../reading/format';
 import { parseInterpretation } from '../reading/parse';
-import { SECTIONS } from '../reading/sections';
+import { sectionsFor } from '../reading/sections';
 import { toWechatText } from '../reading/wechat';
 
 const never = () => false;
@@ -23,12 +23,19 @@ export function ReadingPage(props: { initial: Reading; client: Client | null; on
   const client = props.client;
   const name = client?.name.trim() || r.clientName || '客人';
   const chart = client ? buildChart(client.birth, r.year) : null;
-  const titles = SECTIONS[r.kind];
+  const titles = useMemo(() => sectionsFor(r.kind, r.schools), [r.kind, r.schools]);
   const parsed = useMemo(() => parseInterpretation(r.interpretation, titles), [r.interpretation, titles]);
   const systemTheme = useSystemTheme();
   const theme = r.exportTheme ?? systemTheme;
   const hasText = Boolean(r.interpretation.trim());
-  const found = titles.filter((t) => new RegExp(`[【\\[]\\s*${t}`).test(r.interpretation)).length;
+  const flat = r.interpretation.replace(/[\s:：]/g, '');
+  const found = titles.filter((t) => flat.includes(`【${t.replace(/[\s:：]/g, '')}`)).length;
+  // 至少保留一派；旧测算（没有流派）第一次勾选时直接切换到新写法。
+  const toggleSchool = (s: School) => {
+    const on = r.schools.includes(s);
+    if (on && r.schools.length === 1) return;
+    change({ schools: on ? r.schools.filter((x) => x !== s) : SCHOOLS.filter((x) => x === s || r.schools.includes(x)) });
+  };
 
   const [flash, setFlash] = useState('');
   const [fallback, setFallback] = useState<{ title: string; text: string } | null>(null);
@@ -71,7 +78,23 @@ export function ReadingPage(props: { initial: Reading; client: Client | null; on
 
       <ol className="steps">
         <li>
-          <h2>客人想重点看什么</h2>
+          <h2>用哪几派看</h2>
+          <div className="schools">
+            {SCHOOLS.map((s) => (
+              <button type="button" key={s} className={r.schools.includes(s) ? 'on' : ''} aria-pressed={r.schools.includes(s)} onClick={() => toggleSchool(s)}>
+                <strong>{SCHOOL_LABELS[s]}</strong>
+                <span>{SCHOOL_HINTS[s]}</span>
+              </button>
+            ))}
+          </div>
+          <p className="hint">
+            {r.schools.length === 0
+              ? '这条是加流派之前建的，按旧写法分段。勾选流派后要重新复制提示词问 Claude。'
+              : r.schools.length > 1
+                ? '各派分开写，最后对照哪里一致、哪里相反。'
+                : '只用一派看，不写对照。'}
+          </p>
+          <h2 className="sub">客人想重点看什么</h2>
           {r.kind === 'year' && (
             <label className="field inline-field">
               <span>看哪一年</span>

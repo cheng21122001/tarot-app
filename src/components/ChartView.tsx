@@ -50,6 +50,7 @@ export function ChartView({ chart: c, showYear = false }: { chart: BaziChart; sh
 
       <dl className="facts">
         <div><dt>日主</dt><dd><Gz text={c.dayMaster.slice(0, 1)} />{c.dayMaster.slice(1)}</dd></div>
+        <div><dt>月令</dt><dd><Gz text={c.yueLing.slice(0, 1)} />{c.yueLing.slice(1, 2)}<small className="season">{c.yueLing.slice(3)}</small></dd></div>
         <div><dt>空亡</dt><dd><Gz text={c.kongWang} /></dd></div>
         <div><dt>胎元</dt><dd><Gz text={c.taiYuan} /></dd></div>
         {c.mingGong && <div><dt>命宫</dt><dd><Gz text={c.mingGong} /></dd></div>}

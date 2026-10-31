@@ -26,6 +26,7 @@ describe('buildChart', () => {
     expect(c.pillars.map((p) => p.naYin)).toEqual(['城头土', '大溪水', '天上火', '天上火']);
     expect(c.pillars.map((p) => p.diShi)).toEqual(['长生', '沐浴', '帝旺', '衰']);
     expect(c.kongWang).toBe('子丑');
+    expect(c.yueLing).toBe('卯月 仲春');
     expect(c.mingGong).toBe('己未');
     expect(wuXingText(c)).toBe('木3 火1 土4 金0 水0');
     expect(c.lunarText).toBe('农历 一九九八年二月十四');

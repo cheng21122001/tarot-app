@@ -1,5 +1,8 @@
 export type ParsedInterpretation = { kind: 'sections'; sections: { title: string; body: string }[] } | { kind: 'plain'; text: string };
 
+// 比较标题时忽略空格和全角半角冒号，Claude 常把「：」写成「:」。
+const norm = (s: string) => s.replace(/[\s:：]/g, '');
+
 const HEADING = /^[\s*#>]*[【[]\s*([^【】[\]]+?)\s*[】\]][\s*]*$/;
 
 // 按【标题】独占行拆段。要求的标题必须全部出现且有正文，否则整段排版；拆分失败从不阻止导出。
@@ -11,8 +14,8 @@ export function parseInterpretation(raw: string, titles: string[]): ParsedInterp
   for (const line of text.split('\n')) {
     const m = line.match(HEADING);
     if (m) {
-      const label = m[1].replace(/\s/g, '');
-      const title = titles.find((t) => label.startsWith(t));
+      const label = norm(m[1]);
+      const title = titles.find((t) => label.startsWith(norm(t)));
       if (title && !bodies.has(title)) {
         bodies.set(title, []);
         current = title;

@@ -1,5 +1,5 @@
 import type { Session } from '@supabase/supabase-js';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { supabase } from './data/supabase';
 import { useDocs } from './data/useDocs';
 import { newClient, newReading, type Client, type Doc } from './domain/types';
@@ -38,6 +38,16 @@ function Shell({ userId }: { userId: string }) {
     else go(route?.[1] === 'c' ? '#/clients' : '#/');
   }, [go, route?.[1]]);
   useSwipeBack(Boolean(route), back);
+
+  // 换页时：列表页回到离开时的位置，客人页、测算页从顶部开始（否则会沿用上一页的滚动位置，停在半中间）。
+  const scrollMemory = useRef(new Map<string, number>());
+  const lastHash = useRef(hash);
+  useLayoutEffect(() => {
+    if (lastHash.current === hash) return;
+    scrollMemory.current.set(lastHash.current, window.scrollY);
+    lastHash.current = hash;
+    window.scrollTo(0, route ? 0 : (scrollMemory.current.get(hash) ?? 0));
+  }, [hash, route]);
 
   const startReading = (c: Client, kind: 'natal' | 'year', year: number) => {
     const r = newReading(c, kind, year);

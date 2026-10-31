@@ -1,4 +1,4 @@
-import type { BirthInfo, Client, Doc, Reading, ReadingKind } from '../domain/types';
+import { SCHOOLS, type BirthInfo, type Client, type Doc, type Reading, type ReadingKind, type School } from '../domain/types';
 
 // 沿用原来的 readings 表，不改表结构：用 spread_preset 区分记录种类，其余内容放进 cards（jsonb）。
 // 旧的塔罗记录 spread_preset 是牌阵名，不在下面几种里，拉取时直接跳过。
@@ -29,7 +29,7 @@ export function toRow(d: Doc): Row {
     spread_preset: KIND[d.kind],
     client_name: d.clientName,
     question: d.focus,
-    cards: { clientId: d.clientId, year: d.year },
+    cards: { clientId: d.clientId, year: d.year, schools: d.schools },
     interpretation: d.interpretation,
     export_theme: d.exportTheme,
   };
@@ -56,6 +56,7 @@ export function fromRow(row: Row): Doc | null {
     kind,
     year: typeof data.year === 'number' ? data.year : new Date(common.createdAt).getFullYear(),
     focus: row.question ?? '',
+    schools: Array.isArray(data.schools) ? SCHOOLS.filter((s) => (data.schools as School[]).includes(s)) : [],
     interpretation: row.interpretation ?? '',
     exportTheme: row.export_theme === 'day' || row.export_theme === 'night' ? row.export_theme : null,
   } satisfies Reading;

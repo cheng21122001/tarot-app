@@ -39,3 +39,10 @@ describe('parseInterpretation', () => {
     expect(r.kind === 'sections' && r.sections[2].body).toBe('多休息。\n【注意】\n少熬夜。');
   });
 });
+
+describe('parseInterpretation with school headings', () => {
+  it('matches titles regardless of colon width and spaces', () => {
+    const r = parseInterpretation('【格局派: 成就与方向】\n甲。\n【调候派：心态与状态】\n乙。', ['格局派：成就与方向', '调候派：心态与状态']);
+    expect(r.kind).toBe('sections');
+  });
+});

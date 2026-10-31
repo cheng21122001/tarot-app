@@ -16,6 +16,7 @@ export function ganWuXing(gan: string): WuXing {
   return WU_XING[Math.floor(GANS.indexOf(gan) / 2)];
 }
 
+const SEASON: Record<string, string> = { 寅: '孟春', 卯: '仲春', 辰: '季春', 巳: '孟夏', 午: '仲夏', 未: '季夏', 申: '孟秋', 酉: '仲秋', 戌: '季秋', 亥: '孟冬', 子: '仲冬', 丑: '季冬' };
 const ZHI_WU_XING: Record<string, WuXing> = { 子: '水', 丑: '土', 寅: '木', 卯: '木', 辰: '土', 巳: '火', 午: '火', 未: '土', 申: '金', 酉: '金', 戌: '土', 亥: '水' };
 const WX_KEY: Record<WuXing, string> = { 木: 'wood', 火: 'fire', 土: 'earth', 金: 'metal', 水: 'water' };
 
@@ -80,6 +81,7 @@ export interface BaziChart {
   dayMaster: string; // 如「戊土」
   wuXing: Record<WuXing, number>;
   kongWang: string;
+  yueLing: string; // 如「卯月 仲春」
   mingGong: string | null;
   taiYuan: string;
   startYun: string;
@@ -171,6 +173,7 @@ export function buildChart(b: BirthInfo, year: number): BaziChart | null {
     dayMaster: `${dayGan}${ganWuXing(dayGan)}`,
     wuXing,
     kongWang: ec.getDayXunKong(),
+    yueLing: `${ec.getMonth()[1]}月 ${SEASON[ec.getMonth()[1]]}`,
     mingGong: timeKnown ? ec.getMingGong() : null,
     taiYuan: ec.getTaiYuan(),
     startYun: `${yun.getStartYear()}岁${yun.getStartMonth() ? `${yun.getStartMonth()}个月` : ''}起运`,
