@@ -1,69 +1,39 @@
 import { describe, expect, it } from 'vitest';
-import { newReading, type Reading } from '../reading/types';
+import { buildChart } from '../bazi/chart';
+import { newClient, newReading, type Client } from '../domain/types';
 import { buildPrompt } from './template';
 
-const sample: Reading = {
-  ...newReading(),
-  clientName: '小林',
-  question: '我和现在的合作方，还要继续合作吗？',
-  spreadPreset: 'situation_obstacle_advice',
-  positions: ['现状', '阻碍', '建议'],
-  cards: [
-    { id: 'pentacles-12', reversed: false },
-    { id: 'swords-03', reversed: true },
-    { id: 'major-17', reversed: false },
-  ],
-};
+const client: Client = { ...newClient(), name: '小林', birth: { calendar: 'solar', date: '1998-03-12', leapMonth: false, time: '14:30', gender: 'female' } };
 
 describe('buildPrompt', () => {
-  it('includes the materials', () => {
-    const p = buildPrompt(sample);
+  it('builds a natal prompt with the full chart and seven headings', () => {
+    const r = newReading(client, 'natal', 2026);
+    const p = buildPrompt(r, client, buildChart(client.birth, 2026)!);
+    expect(p).toContain('命盘总论');
     expect(p).toContain('客人称呼：小林');
-    expect(p).toContain('问题：我和现在的合作方，还要继续合作吗？');
-    expect(p).toContain('第二张（阻碍）：宝剑三·逆位');
-  });
-
-  it('spells out the exact output headings', () => {
-    const p = buildPrompt(sample);
-    expect(p).toContain('【第一张｜现状｜星币骑士·正位】\n【第二张｜阻碍｜宝剑三·逆位】\n【第三张｜建议｜星星·正位】\n【整体解读】\n【建议】');
-  });
-
-  it('carries the writing rules', () => {
-    const p = buildPrompt(sample);
-    expect(p).toContain('600 到 900 字');
-    expect(p).toContain('韦特');
+    expect(p).toContain('四柱：戊寅 乙卯 戊午 己未');
+    expect(p).toContain('年柱 戊寅：天干戊（比肩），地支寅藏甲（七杀）丙（偏印）戊（比肩），纳音城头土，星运长生');
+    expect(p).toContain('当前（2026年）：大运 壬子偏财运（2020–2029，虚岁23起），流年 丙午（天干偏印）');
+    expect(p).toContain('【命局总览】\n【性格特点】\n【事业学业】\n【财运】\n【感情婚姻】\n【大运走势】\n【建议】');
+    expect(p).not.toContain('流月');
     expect(p).toContain('不要在正文里写免责声明');
   });
 
-  it('falls back to 客人 when name is empty', () => {
-    expect(buildPrompt({ ...sample, clientName: ' ' })).toContain('客人称呼：客人');
-  });
-});
-
-describe('buildPrompt with birth info', () => {
-  const withBirth: Reading = {
-    ...sample,
-    createdAt: new Date(2026, 9, 31, 12).toISOString(),
-    birth: { calendar: 'solar', date: '1998-03-12', leapMonth: false, time: '14:30', gender: 'female' },
-  };
-
-  it('adds the computed chart and a 命盘参考 heading', () => {
-    const p = buildPrompt(withBirth);
-    expect(p).toContain('四柱：戊寅 乙卯 戊午 己未');
-    expect(p).toContain('日主：戊土');
-    expect(p).toContain('流年：2026 丙午');
-    expect(p).toContain('，女');
-    expect(p).toContain('【第三张｜建议｜星星·正位】\n【命盘参考】\n【整体解读】\n【建议】');
-    expect(p).toContain('六个标题');
+  it('builds a year prompt with liu yue and the focus', () => {
+    const r = { ...newReading(client, 'year', 2027), focus: '明年适合换工作吗' };
+    const p = buildPrompt(r, client, buildChart(client.birth, 2027)!);
+    expect(p).toContain('2027年流年运势');
+    expect(p).toContain('要看的流年：2027年 丁未（天干正印）');
+    expect(p).toContain('  寅月 壬寅（偏财），立春 2/4 起');
+    expect(p).toContain('客人特别想了解：明年适合换工作吗');
+    expect(p).toContain('【逐月提示】');
   });
 
   it('notes an unknown hour', () => {
-    expect(buildPrompt({ ...withBirth, birth: { ...withBirth.birth!, time: null } })).toContain('时辰不详');
-  });
-
-  it('leaves the plain prompt alone when birth is invalid', () => {
-    const p = buildPrompt({ ...withBirth, birth: { ...withBirth.birth!, date: '1998-02-30' } });
-    expect(p).not.toContain('命盘');
-    expect(p).toContain('五个标题');
+    const c = { ...client, birth: { ...client.birth, time: null } };
+    const p = buildPrompt(newReading(c, 'natal', 2026), c, buildChart(c.birth, 2026)!);
+    expect(p).toContain('时辰不详');
+    expect(p).not.toContain('时柱 ');
+    expect(p).not.toContain('命宫');
   });
 });

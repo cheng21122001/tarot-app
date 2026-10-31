@@ -1,6 +1,12 @@
-import type { BirthInfo, CardPick, CardSlotsValue, Positions, Reading, SpreadPreset, Theme } from '../reading/types';
+import type { BirthInfo, Client, Doc, Reading, ReadingKind } from '../domain/types';
 
-export interface ReadingRow {
+// 沿用原来的 readings 表，不改表结构：用 spread_preset 区分记录种类，其余内容放进 cards（jsonb）。
+// 旧的塔罗记录 spread_preset 是牌阵名，不在下面几种里，拉取时直接跳过。
+export const KIND = { client: 'bazi_client', natal: 'bazi_natal', year: 'bazi_year' } as const;
+export const DELETED = 'deleted';
+export const LIVE_KINDS: string[] = Object.values(KIND);
+
+export interface Row {
   id: string;
   created_at: string;
   updated_at: string;
@@ -8,48 +14,51 @@ export interface ReadingRow {
   question: string;
   spread_preset: string;
   positions: string[];
-  // 前三项是三张牌；填了八字时第四项为 { birth }，旧版本只读前三项，不受影响。
-  cards: (CardPick | { birth: BirthInfo } | null)[];
+  cards: unknown;
   interpretation: string;
-  export_theme: Theme | null;
+  export_theme: 'day' | 'night' | null;
 }
 
-const PRESET_VALUES: SpreadPreset[] = ['past_present_future', 'situation_obstacle_advice', 'you_them_outcome', 'custom'];
-
-export function toRow(r: Reading): ReadingRow {
+export function toRow(d: Doc): Row {
+  const common = { id: d.id, created_at: d.createdAt, updated_at: d.updatedAt, positions: ['', '', ''] };
+  if (d.type === 'client') {
+    return { ...common, spread_preset: KIND.client, client_name: d.name, question: d.note, cards: { birth: d.birth }, interpretation: '', export_theme: null };
+  }
   return {
-    id: r.id,
-    created_at: r.createdAt,
-    updated_at: r.updatedAt,
-    client_name: r.clientName,
-    question: r.question,
-    spread_preset: r.spreadPreset,
-    positions: [...r.positions],
-    cards: r.birth ? [...r.cards, { birth: r.birth }] : [...r.cards],
-    interpretation: r.interpretation,
-    export_theme: r.exportTheme,
+    ...common,
+    spread_preset: KIND[d.kind],
+    client_name: d.clientName,
+    question: d.focus,
+    cards: { clientId: d.clientId, year: d.year },
+    interpretation: d.interpretation,
+    export_theme: d.exportTheme,
   };
 }
 
 // Postgres 返回的时间形如 2026-09-15T10:00:00+00:00，统一成 toISOString 格式方便比较。
-export function fromRow(row: ReadingRow): Reading {
-  const positions = [0, 1, 2].map((i) => row.positions?.[i] ?? '') as Positions;
-  const cards = [0, 1, 2].map((i) => row.cards?.[i] ?? null) as CardSlotsValue;
-  const extra = row.cards?.[3];
-  const preset = PRESET_VALUES.includes(row.spread_preset as SpreadPreset) ? (row.spread_preset as SpreadPreset) : 'custom';
+const iso = (s: string) => new Date(s).toISOString();
+
+export function fromRow(row: Row): Doc | null {
+  const data = (row.cards && typeof row.cards === 'object' && !Array.isArray(row.cards) ? row.cards : {}) as Record<string, unknown>;
+  const common = { id: row.id, createdAt: iso(row.created_at), updatedAt: iso(row.updated_at) };
+  if (row.spread_preset === KIND.client) {
+    const birth = normaliseBirth(data.birth);
+    if (!birth) return null;
+    return { ...common, type: 'client', name: row.client_name ?? '', birth, note: row.question ?? '' } satisfies Client;
+  }
+  const kind = (Object.keys(KIND) as (keyof typeof KIND)[]).find((k) => k !== 'client' && KIND[k] === row.spread_preset) as ReadingKind | undefined;
+  if (!kind || typeof data.clientId !== 'string') return null;
   return {
-    id: row.id,
-    createdAt: new Date(row.created_at).toISOString(),
-    updatedAt: new Date(row.updated_at).toISOString(),
+    ...common,
+    type: 'reading',
+    clientId: data.clientId,
     clientName: row.client_name ?? '',
-    question: row.question ?? '',
-    spreadPreset: preset,
-    positions,
-    cards,
+    kind,
+    year: typeof data.year === 'number' ? data.year : new Date(common.createdAt).getFullYear(),
+    focus: row.question ?? '',
     interpretation: row.interpretation ?? '',
     exportTheme: row.export_theme === 'day' || row.export_theme === 'night' ? row.export_theme : null,
-    birth: extra && 'birth' in extra ? normaliseBirth(extra.birth) : null,
-  };
+  } satisfies Reading;
 }
 
 function normaliseBirth(b: unknown): BirthInfo | null {
@@ -60,7 +69,7 @@ function normaliseBirth(b: unknown): BirthInfo | null {
     calendar: o.calendar === 'lunar' ? 'lunar' : 'solar',
     date: o.date,
     leapMonth: o.leapMonth === true,
-    time: typeof o.time === 'string' ? o.time : null,
-    gender: o.gender === 'female' ? 'female' : 'male',
+    time: typeof o.time === 'string' && o.time ? o.time : null,
+    gender: o.gender === 'male' ? 'male' : 'female',
   };
 }

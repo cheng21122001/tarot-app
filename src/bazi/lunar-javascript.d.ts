@@ -1,13 +1,12 @@
 // lunar-javascript 不带类型声明，这里只声明用到的部分。
 declare module 'lunar-javascript' {
   export class Solar {
+    static fromYmd(y: number, m: number, d: number): Solar;
     static fromYmdHms(y: number, m: number, d: number, h: number, mi: number, s: number): Solar;
-    static fromDate(d: Date): Solar;
     getYear(): number;
     getMonth(): number;
     getDay(): number;
     getLunar(): Lunar;
-    toYmd(): string;
   }
   export class Lunar {
     static fromYmdHms(y: number, m: number, d: number, h: number, mi: number, s: number): Lunar;
@@ -17,25 +16,26 @@ declare module 'lunar-javascript' {
     getMonth(): number; // 闰月为负数
     getDay(): number;
     getYearInGanZhiExact(): string;
+    getMonthInGanZhiExact(): string;
     getYearInChinese(): string;
     getMonthInChinese(): string;
     getDayInChinese(): string;
+    getPrevJie(): JieQi;
   }
-  export class EightChar {
-    getYear(): string;
-    getMonth(): string;
-    getDay(): string;
-    getTime(): string;
+  export class JieQi {
+    getName(): string;
+    getSolar(): Solar;
+  }
+  type P = 'Year' | 'Month' | 'Day' | 'Time';
+  export type EightChar = {
     getDayGan(): string;
-    getYearWuXing(): string;
-    getMonthWuXing(): string;
-    getDayWuXing(): string;
-    getTimeWuXing(): string;
-    getYearShiShenGan(): string;
-    getMonthShiShenGan(): string;
-    getTimeShiShenGan(): string;
+    getDayXunKong(): string;
+    getMingGong(): string;
+    getTaiYuan(): string;
     getYun(gender: 0 | 1): Yun;
-  }
+  } & { [K in `get${P}`]: () => string } & { [K in `get${P}WuXing` | `get${P}NaYin` | `get${P}DiShi`]: () => string } & {
+    [K in `get${P}HideGan`]: () => string[];
+  };
   export class Yun {
     getStartYear(): number;
     getStartMonth(): number;

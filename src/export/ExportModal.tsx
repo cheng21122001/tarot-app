@@ -1,13 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
-import type { ParsedInterpretation } from '../reading/parse';
-import { formatDate } from '../reading/search';
-import type { Reading, Theme } from '../reading/types';
-import { LongImage } from './LongImage';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { renderLongImage } from './render';
 
 type State = { status: 'working' } | { status: 'done'; blob: Blob; url: string } | { status: 'error' };
 
-export function ExportModal({ reading, parsed, theme, onClose }: { reading: Reading; parsed: ParsedInterpretation; theme: Theme; onClose: () => void }) {
+export function ExportModal({ fileName, onClose, children }: { fileName: string; onClose: () => void; children: ReactNode }) {
   const nodeRef = useRef<HTMLDivElement>(null);
   const [state, setState] = useState<State>({ status: 'working' });
   const [attempt, setAttempt] = useState(0);
@@ -31,9 +27,7 @@ export function ExportModal({ reading, parsed, theme, onClose }: { reading: Read
       cancelled = true;
       if (url) URL.revokeObjectURL(url);
     };
-  }, [attempt, theme]);
-
-  const fileName = `塔罗-${reading.clientName.trim() || '客人'}-${formatDate(reading.createdAt)}.png`;
+  }, [attempt]);
 
   const save = () => {
     if (state.status !== 'done') return;
@@ -59,7 +53,7 @@ export function ExportModal({ reading, parsed, theme, onClose }: { reading: Read
           {state.status === 'working' && <p className="hint">正在生成…</p>}
           {state.status === 'error' && (
             <p className="hint">
-              生成失败 <button type="button" className="text-btn" onClick={() => setAttempt((a) => a + 1)}>重试</button>
+              生成失败 <button type="button" className="text-btn" onClick={() => setAttempt((a) => a + 1)}>重试</button>，也可以先用「复制微信文字」
             </p>
           )}
           {state.status === 'done' && (
@@ -70,9 +64,7 @@ export function ExportModal({ reading, parsed, theme, onClose }: { reading: Read
           )}
         </div>
         <div className="offscreen">
-          <div ref={nodeRef}>
-            <LongImage reading={reading} parsed={parsed} theme={theme} />
-          </div>
+          <div ref={nodeRef}>{children}</div>
         </div>
       </div>
     </div>

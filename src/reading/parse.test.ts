@@ -1,79 +1,41 @@
 import { describe, expect, it } from 'vitest';
 import { parseInterpretation } from './parse';
 
-const standard = `【第一张｜现状｜星币骑士·正位】
-现状段落。
+const titles = ['年度总览', '逐月提示', '建议'];
+const standard = `【年度总览】
+总览第一句。
 
-【第二张｜阻碍｜宝剑三·逆位】
-阻碍段落第一句。
-阻碍段落第二句。
-【第三张｜建议｜星星·正位】
-建议牌段落。
-【整体解读】
-整体段落。
+总览第二段。
+【逐月提示】
+寅月（2/4 起）：留意合同。
 【建议】
-行动建议。`;
+多休息。`;
 
 describe('parseInterpretation', () => {
   it('splits the standard format', () => {
-    expect(parseInterpretation(standard)).toEqual({
+    expect(parseInterpretation(standard, titles)).toEqual({
       kind: 'sections',
-      cards: ['现状段落。', '阻碍段落第一句。\n阻碍段落第二句。', '建议牌段落。'],
-      overall: '整体段落。',
-      advice: '行动建议。',
+      sections: [
+        { title: '年度总览', body: '总览第一句。\n\n总览第二段。' },
+        { title: '逐月提示', body: '寅月（2/4 起）：留意合同。' },
+        { title: '建议', body: '多休息。' },
+      ],
     });
   });
 
-  it('ignores a preamble before the first heading', () => {
-    const r = parseInterpretation(`好的，以下是解读：\n\n${standard}`);
+  it('tolerates a preamble, markdown marks, half-width brackets and spaces', () => {
+    const r = parseInterpretation(`好的，以下是解读：\n\n## 【年度 总览】\n总览。\n[逐月提示]\n逐月。\n**【建议】**\n建议。`, titles);
     expect(r.kind).toBe('sections');
   });
 
-  it('collapses runs of blank lines inside a section', () => {
-    const r = parseInterpretation(standard.replace('整体段落。', '第一段。\n\n\n\n第二段。'));
-    expect(r.kind === 'sections' && r.overall).toBe('第一段。\n\n第二段。');
+  it('falls back to plain text when a section is missing or empty', () => {
+    expect(parseInterpretation('【年度总览】\n总览。\n【建议】\n建议。', titles).kind).toBe('plain');
+    expect(parseInterpretation('【年度总览】\n总览。\n【逐月提示】\n【建议】\n建议。', titles).kind).toBe('plain');
+    expect(parseInterpretation('没有标题的一整段。', titles)).toEqual({ kind: 'plain', text: '没有标题的一整段。' });
   });
 
-  it('accepts half-width brackets, markdown decoration and CRLF', () => {
-    const messy = standard
-      .replace('【整体解读】', '**【整体解读】**')
-      .replace('【建议】', '## [建议]')
-      .replace('【第一张｜现状｜星币骑士·正位】', '[第一张 | 现状 | 星币骑士·正位]')
-      .replace(/\n/g, '\r\n');
-    const r = parseInterpretation(messy);
-    expect(r.kind).toBe('sections');
-    expect(r.kind === 'sections' && r.advice).toBe('行动建议。');
-  });
-
-  it('still splits when the card name in a heading does not match', () => {
-    const r = parseInterpretation(standard.replace('宝剑三·逆位', '宝剑四·正位'));
-    expect(r.kind).toBe('sections');
-  });
-
-  it('falls back to plain when a section is missing', () => {
-    const noAdvice = standard.replace('【建议】\n行动建议。', '');
-    expect(parseInterpretation(noAdvice)).toEqual({ kind: 'plain', text: noAdvice.trim() });
-  });
-
-  it('falls back to plain when a section is empty', () => {
-    const empty = standard.replace('整体段落。', '');
-    expect(parseInterpretation(empty).kind).toBe('plain');
-  });
-
-  it('falls back to plain when there are no headings', () => {
-    expect(parseInterpretation('  一整段解读。\n第二行。 ')).toEqual({ kind: 'plain', text: '一整段解读。\n第二行。' });
-  });
-
-  it('returns empty plain for empty input', () => {
-    expect(parseInterpretation('')).toEqual({ kind: 'plain', text: '' });
-  });
-});
-
-describe('parseInterpretation with 命盘参考', () => {
-  it('picks up the optional chart section', () => {
-    const text = standard.replace('【整体解读】', '【命盘参考】\n命盘段落。\n【整体解读】');
-    const r = parseInterpretation(text);
-    expect(r.kind === 'sections' && r.chart).toBe('命盘段落。');
-    expect(r.kind === 'sections' && r.overall).toBe('整体段落。');
+  it('does not treat a body line in brackets as a new section', () => {
+    const r = parseInterpretation(standard.replace('多休息。', '多休息。\n【注意】\n少熬夜。'), titles);
+    expect(r.kind === 'sections' && r.sections[2].body).toBe('多休息。\n【注意】\n少熬夜。');
   });
 });

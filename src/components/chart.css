@@ -1,0 +1,24 @@
+.chart { border: 1px solid var(--gold); border-radius: 8px; background: var(--surface); padding: 12px; }
+.chart h3 { font-size: 13px; font-weight: 600; color: var(--accent); margin: 16px 0 8px; letter-spacing: .1em; }
+.chart h3 strong { font-size: 16px; letter-spacing: .1em; margin: 0 4px; }
+.chart h3 small { font-weight: 400; color: var(--muted); letter-spacing: 0; }
+.pillars { width: 100%; border-collapse: collapse; table-layout: fixed; text-align: center; }
+.pillars th, .pillars td { padding: 3px 2px; }
+.pillars thead th { font-size: 12px; font-weight: 400; color: var(--muted); }
+.pillars tbody th { width: 40px; font-size: 11px; font-weight: 400; color: var(--muted); text-align: left; }
+.pillars .muted td { font-size: 12px; color: var(--muted); }
+.pillars .big td { font-size: 26px; font-weight: 600; color: var(--accent); line-height: 1.2; }
+.pillars .small td { font-size: 12px; line-height: 1.5; border-top: 1px solid var(--line); }
+.pillars .small td span { color: var(--muted); margin-left: 2px; font-size: 11px; }
+.chart-info { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 12px 0 0; font-size: 13px; }
+.chart-info div { display: flex; gap: 6px; }
+.chart-info dt { color: var(--muted); }
+.chart-info dd { margin: 0; }
+.chart-birth { font-size: 12px; color: var(--muted); margin: 6px 0 0; }
+.dayun, .liuyue { display: grid; gap: 4px; text-align: center; }
+.dayun { grid-template-columns: repeat(auto-fill, minmax(56px, 1fr)); }
+.liuyue { grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); }
+.dayun div, .liuyue div { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 6px; padding: 4px 2px; }
+.dayun div.on { border-color: var(--gold); background: color-mix(in srgb, var(--gold) 18%, transparent); }
+.dayun strong, .liuyue strong { font-size: 16px; font-weight: 600; color: var(--accent); letter-spacing: .05em; }
+.dayun small, .liuyue small { font-size: 11px; color: var(--muted); }

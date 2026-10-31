@@ -1,9 +1,7 @@
-import { buildChart } from '../bazi/chart';
-import { cardImageUrl } from '../cards/deck';
-import { cardDisplayName, ORDINALS } from '../reading/labels';
+import { wuXingText, daYunText, type BaziChart } from '../bazi/chart';
+import { readingTitle, type Reading, type Theme } from '../domain/types';
+import { formatDate } from '../reading/format';
 import type { ParsedInterpretation } from '../reading/parse';
-import { formatDate } from '../reading/search';
-import type { Reading, Theme } from '../reading/types';
 import { SIGNATURE } from '../reading/wechat';
 import './longImage.css';
 
@@ -17,68 +15,43 @@ function Paragraphs({ text }: { text: string }) {
   );
 }
 
-export function LongImage({ reading: r, parsed, theme }: { reading: Reading; parsed: ParsedInterpretation; theme: Theme }) {
-  const chart = r.birth ? buildChart(r.birth, new Date(r.createdAt)) : null;
+export function LongImage({ reading: r, name, chart: c, parsed, theme }: { reading: Reading; name: string; chart: BaziChart; parsed: ParsedInterpretation; theme: Theme }) {
   return (
     <div className={`li li-${theme}`}>
       <header className="li-top">
-        <div className="li-kicker">TAROT READING</div>
-        <div className="li-q">{r.question.trim()}</div>
-        <div className="li-meta">{[r.clientName.trim() || '客人', formatDate(r.createdAt), r.positions.join(' / ')].join(' · ')}</div>
-        <div className="li-orn">✦ ✦ ✦</div>
+        <div className="li-kicker">八 字 命 理</div>
+        <div className="li-title">{readingTitle(r)}</div>
+        <div className="li-meta">{[name, c.genderText, formatDate(r.createdAt)].join(' · ')}</div>
+        {r.focus.trim() && <div className="li-focus">「{r.focus.trim()}」</div>}
       </header>
 
-      <div className="li-cards">
-        {([0, 1, 2] as const).map((i) => {
-          const c = r.cards[i];
-          return (
-            <figure key={i}>
-              {c && <img src={cardImageUrl(c.id)} className={c.reversed ? 'reversed' : ''} alt="" />}
-              <figcaption>
-                <div>{r.positions[i]}</div>
-                <div>{cardDisplayName(c)}</div>
-              </figcaption>
-            </figure>
-          );
-        })}
+      <div className="li-chart">
+        <div className="li-pillars">
+          {c.pillars.map((p) => (
+            <div key={p.label}>
+              <small>{p.label}</small>
+              <small>{p.ganShiShen}</small>
+              <strong>{p.gan}</strong>
+              <strong>{p.zhi}</strong>
+              <small>{p.hidden.map((h) => h.gan).join(' ')}</small>
+              <small>{p.naYin}</small>
+            </div>
+          ))}
+        </div>
+        <div className="li-chart-meta">
+          <div>日主 {c.dayMaster} · 五行 {wuXingText(c)}</div>
+          {c.currentDaYun && <div>大运 {daYunText(c.currentDaYun)}</div>}
+          <div>{r.kind === 'year' ? `${c.year} 流年` : '流年'} {c.liuNian.ganZhi}（{c.liuNian.shiShen}）</div>
+        </div>
       </div>
 
       {parsed.kind === 'sections' ? (
-        <>
-          {([0, 1, 2] as const).map((i) => (
-            <section className="li-sec" key={i}>
-              <h4>
-                {ORDINALS[i]} · {r.positions[i]} <span>{cardDisplayName(r.cards[i])}</span>
-              </h4>
-              <Paragraphs text={parsed.cards[i]} />
-            </section>
-          ))}
-          {parsed.chart && (
-            <section className="li-sec">
-              <h4>命盘参考</h4>
-              {chart && (
-                <div className="li-pillars">
-                  {chart.pillars.map((p) => (
-                    <div key={p.label}>
-                      <small>{p.label}</small>
-                      <strong>{p.ganZhi}</strong>
-                      <small>{p.shiShen}</small>
-                    </div>
-                  ))}
-                </div>
-              )}
-              <Paragraphs text={parsed.chart} />
-            </section>
-          )}
-          <section className="li-sec">
-            <h4>整体解读</h4>
-            <Paragraphs text={parsed.overall} />
+        parsed.sections.map((s) => (
+          <section className="li-sec" key={s.title}>
+            <h4>{s.title}</h4>
+            <Paragraphs text={s.body} />
           </section>
-          <section className="li-sec">
-            <h4>建议</h4>
-            <Paragraphs text={parsed.advice} />
-          </section>
-        </>
+        ))
       ) : (
         <section className="li-sec">
           <Paragraphs text={parsed.text} />

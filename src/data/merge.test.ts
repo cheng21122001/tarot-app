@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { newReading, type Reading } from '../reading/types';
-import { idsToPush, mergeReadings } from './merge';
+import type { Stamped } from './merge';
+import { idsToPush, mergeDocs as mergeReadings } from './merge';
 
-const make = (id: string, created: string, updated: string, name = id): Reading => ({
-  ...newReading(), id, createdAt: created, updatedAt: updated, clientName: name,
+const make = (id: string, created: string, updated: string, name = id): Stamped & { clientName: string } => ({
+  id, createdAt: created, updatedAt: updated, clientName: name,
 });
 
 describe('mergeReadings', () => {

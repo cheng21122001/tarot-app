@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { Theme } from '../reading/types';
+import type { Theme } from '../domain/types';
 
 const query = '(prefers-color-scheme: dark)';
 

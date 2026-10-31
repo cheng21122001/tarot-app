@@ -1,18 +1,11 @@
-import { cardDisplayName, ORDINALS } from './labels';
+import { pillarsText, type BaziChart } from '../bazi/chart';
+import { readingTitle, type Client, type Reading } from '../domain/types';
 import type { ParsedInterpretation } from './parse';
-import type { Reading } from './types';
 
 export const SIGNATURE = '小艾';
 
-export function cardTitle(r: Reading, i: 0 | 1 | 2): string {
-  return `${ORDINALS[i]} · ${r.positions[i]} · ${cardDisplayName(r.cards[i])}`;
-}
-
-export function toWechatText(r: Reading, parsed: ParsedInterpretation): string {
-  const head = `问题：${r.question.trim()}`;
-  if (parsed.kind === 'plain') return [head, '', parsed.text, '', SIGNATURE].join('\n');
-  const blocks = ([0, 1, 2] as const).map((i) => `${cardTitle(r, i)}\n${parsed.cards[i]}`);
-  if (parsed.chart) blocks.push(`命盘参考\n${parsed.chart}`);
-  blocks.push(`整体解读\n${parsed.overall}`, `建议\n${parsed.advice}`);
-  return [head, '', blocks.join('\n——\n'), '', SIGNATURE].join('\n');
+export function toWechatText(r: Reading, client: Client, c: BaziChart, parsed: ParsedInterpretation): string {
+  const head = [`${client.name.trim() || '客人'} · ${readingTitle(r)}`, `八字：${pillarsText(c)}（日主${c.dayMaster}）`];
+  const body = parsed.kind === 'plain' ? parsed.text : parsed.sections.map((s) => `${s.title}\n${s.body}`).join('\n——\n');
+  return [...head, '', body, '', SIGNATURE].join('\n');
 }

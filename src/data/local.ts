@@ -1,23 +1,26 @@
-import { createStore, del, get, set } from 'idb-keyval';
-import type { Reading } from '../reading/types';
+import { createStore, del, delMany, get, set } from 'idb-keyval';
+import type { Doc } from '../domain/types';
 
 const store = createStore('xiaoai-tarot', 'kv');
-const K = { readings: 'readings', pending: 'pending', deleting: 'deleting', user: 'user' };
+// 八字版换了一套键，塔罗版留下的本地数据不再读取，启动时顺手清掉。
+const K = { docs: 'bazi-docs', pending: 'bazi-pending', deleting: 'bazi-deleting', user: 'user' };
+const LEGACY = ['readings', 'pending', 'deleting'];
 
 export interface LocalState {
-  readings: Reading[];
+  docs: Doc[];
   pending: string[];
   // 本机已删除、还没在服务器上确认删掉的记录 id。
   deleting: string[];
 }
 
 export async function loadLocal(): Promise<LocalState> {
-  const [readings, pending, deleting] = await Promise.all([
-    get<Record<string, Reading>>(K.readings, store),
+  const [docs, pending, deleting] = await Promise.all([
+    get<Record<string, Doc>>(K.docs, store),
     get<string[]>(K.pending, store),
     get<string[]>(K.deleting, store),
   ]);
-  return { readings: Object.values(readings ?? {}), pending: pending ?? [], deleting: deleting ?? [] };
+  void delMany(LEGACY, store).catch(() => undefined);
+  return { docs: Object.values(docs ?? {}), pending: pending ?? [], deleting: deleting ?? [] };
 }
 
 let chain: Promise<void> = Promise.resolve();
@@ -25,7 +28,7 @@ let chain: Promise<void> = Promise.resolve();
 export function writeLocal(s: LocalState): Promise<void> {
   chain = chain
     .then(async () => {
-      await set(K.readings, Object.fromEntries(s.readings.map((r) => [r.id, r])), store);
+      await set(K.docs, Object.fromEntries(s.docs.map((d) => [d.id, d])), store);
       await set(K.pending, s.pending, store);
       await set(K.deleting, s.deleting, store);
     })
@@ -37,7 +40,7 @@ export function writeLocal(s: LocalState): Promise<void> {
 export async function claimLocalFor(userId: string): Promise<void> {
   const current = await get<string>(K.user, store);
   if (current && current !== userId) {
-    await del(K.readings, store);
+    await del(K.docs, store);
     await del(K.pending, store);
     await del(K.deleting, store);
   }
