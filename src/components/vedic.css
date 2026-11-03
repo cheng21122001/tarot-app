@@ -1,0 +1,45 @@
+.si-chart { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, minmax(64px, auto)); border: 1px solid var(--ink-3); border-radius: 6px; overflow: hidden; background: var(--sheet); }
+.si-cell { border: 0.5px solid var(--rule); padding: 4px 5px; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.si-cell.asc { box-shadow: inset 0 0 0 1.5px var(--cinnabar); }
+.si-sign { font-size: 11px; color: var(--ink-3); display: flex; justify-content: space-between; }
+.si-sign small { font-variant-numeric: tabular-nums; }
+.si-planets { display: flex; flex-wrap: wrap; gap: 0 5px; font-family: var(--kai); font-size: 19px; line-height: 1.2; }
+.si-planets .up { color: var(--wood); }
+.si-planets .down { color: var(--fire); }
+.si-planets sup { font-family: var(--sans); font-size: 9px; color: var(--ink-2); margin-left: 1px; }
+.si-asc { color: var(--cinnabar); font-weight: 400; }
+.si-center { grid-row: 2 / 4; grid-column: 2 / 4; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-align: center; padding: 8px; }
+.si-center strong { font-family: var(--kai); font-size: 20px; font-weight: 400; }
+.si-center span { font-size: 13px; color: var(--ink-2); }
+.si-center small { font-size: 11px; color: var(--ink-3); }
+
+.v-table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 14px; }
+.v-table th { font-size: 11px; font-weight: 400; color: var(--ink-3); text-align: left; padding: 0 4px 4px; }
+.v-table td { padding: 6px 4px; border-top: 1px solid var(--rule); white-space: nowrap; }
+.v-table td:first-child { font-family: var(--kai); font-size: 16px; }
+.v-table td small { color: var(--ink-2); font-size: 12px; margin-left: 2px; }
+.v-table .asc-row td:first-child { color: var(--cinnabar); }
+.v-table .tags { text-align: right; }
+.v-table em { font-style: normal; font-size: 11px; padding: 1px 5px; border-radius: 4px; border: 1px solid var(--rule); color: var(--ink-2); margin-left: 3px; }
+.v-table em.up { color: var(--wood); border-color: currentColor; }
+.v-table em.down { color: var(--fire); border-color: currentColor; }
+
+.vedic .dayun .g { font-size: 24px; }
+.v-list { list-style: none; margin: 0; padding: 0; }
+.v-list li { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 6px 0; border-top: 1px solid var(--rule); font-size: 14px; }
+.v-list li span { font-family: var(--kai); font-size: 16px; white-space: nowrap; }
+.v-list li small { color: var(--ink-2); font-size: 12px; text-align: right; }
+.v-list li.now span { color: var(--cinnabar); }
+.vedic .liuyue .g { font-size: 17px; }
+
+.place-show { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; }
+.place-show strong { font-weight: 500; }
+.place-show small { color: var(--ink-2); font-size: 12px; }
+.place-results { list-style: none; margin: 6px 0 0; padding: 0; border: 1px solid var(--rule); border-radius: var(--radius); overflow: hidden; }
+.place-results:empty { display: none; }
+.place-results li + li { border-top: 1px solid var(--rule); }
+.place-results button { width: 100%; display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding: 10px 12px; background: var(--sheet); border: 0; color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+.place-results small { color: var(--ink-2); font-size: 12px; white-space: nowrap; }
+.place-actions { display: flex; gap: 16px; align-items: center; margin-top: 8px; }
+.place-manual { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.place-manual input:first-child { grid-column: 1 / -1; }

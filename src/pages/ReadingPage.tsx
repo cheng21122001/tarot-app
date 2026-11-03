@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { buildChart } from '../bazi/chart';
 import { ChartView } from '../components/ChartView';
+import { VedicView } from '../components/VedicView';
 import { Gz } from '../components/Gz';
 import { PageBar } from '../components/PageBar';
 import { TextModal } from '../components/TextModal';
@@ -11,10 +12,12 @@ import { copyText, readText } from '../lib/clipboard';
 import { useAutosave } from '../lib/useAutosave';
 import { useSystemTheme } from '../lib/useSystemTheme';
 import { buildPrompt } from '../prompt/template';
+import { buildVedicPrompt } from '../prompt/vedic';
 import { formatDate } from '../reading/format';
 import { parseInterpretation } from '../reading/parse';
 import { sectionsFor } from '../reading/sections';
 import { toWechatText } from '../reading/wechat';
+import { buildVedicChart, NAKSHATRAS, PLANET_NAMES, SIGNS } from '../vedic/chart';
 
 const never = () => false;
 
@@ -22,8 +25,13 @@ export function ReadingPage(props: { initial: Reading; client: Client | null; si
   const { value: r, change, discard, saveNow, status } = useAutosave(props.initial, props.onSave, never);
   const client = props.client;
   const name = client?.name.trim() || r.clientName || '命主';
+  const isVedic = r.system === 'vedic';
   const chart = client ? buildChart(client.birth, r.year) : null;
-  const titles = useMemo(() => sectionsFor(r.kind, r.schools), [r.kind, r.schools]);
+  const birthKey = client ? JSON.stringify(client.birth) : '';
+  const vedic = useMemo(() => (isVedic && client ? buildVedicChart(client.birth, r.year) : null), [isVedic, birthKey, r.year]);
+  // 当前测算用的盘：八字盘或吠陀星盘。
+  const active = isVedic ? vedic : chart;
+  const titles = useMemo(() => sectionsFor(r.kind, r.schools, r.system), [r.kind, r.schools, r.system]);
   const parsed = useMemo(() => parseInterpretation(r.interpretation, titles), [r.interpretation, titles]);
   const systemTheme = useSystemTheme();
   const theme = r.exportTheme ?? systemTheme;
@@ -63,7 +71,13 @@ export function ReadingPage(props: { initial: Reading; client: Client | null; si
     props.onDelete();
   }, [discard, props]);
 
-  const ready = Boolean(chart && client);
+  const ready = Boolean(active && client);
+  const yearField = r.kind === 'year' && (
+    <label className="field inline-field year-field">
+      <span>看哪一年</span>
+      <input inputMode="numeric" value={r.year} onChange={(e) => change({ year: Number(e.target.value.replace(/\D/g, '').slice(0, 4)) || new Date().getFullYear() })} />
+    </label>
+  );
 
   return (
     <div className="page">
@@ -77,6 +91,14 @@ export function ReadingPage(props: { initial: Reading; client: Client | null; si
       </header>
 
       <ol className="steps">
+        {isVedic ? (
+          yearField && (
+            <li>
+              <h2>看哪一年</h2>
+              {yearField}
+            </li>
+          )
+        ) : (
         <li>
           <h2>用哪几派看</h2>
           <div className="schools">
@@ -94,17 +116,33 @@ export function ReadingPage(props: { initial: Reading; client: Client | null; si
                 ? '各派分开写，最后对照哪里一致、哪里相反。'
                 : '只用一派看，不写对照。'}
           </p>
-          {r.kind === 'year' && (
-            <label className="field inline-field year-field">
-              <span>看哪一年</span>
-              <input inputMode="numeric" value={r.year} onChange={(e) => change({ year: Number(e.target.value.replace(/\D/g, '').slice(0, 4)) || new Date().getFullYear() })} />
-            </label>
-          )}
+          {yearField}
         </li>
+        )}
 
         <li>
           <h2>核对排盘</h2>
-          {chart ? (
+          {isVedic ? (
+            vedic ? (
+              <details className="chart-toggle">
+                <summary>
+                  <span className="summary-gz">
+                    {vedic.lagna ? `${SIGNS[vedic.lagna.sign]}上升 · ` : ''}月亮{SIGNS[vedic.moon.sign]} · {NAKSHATRAS[vedic.moon.nak][1]}宿
+                  </span>
+                  <span className="summary-more">
+                    {vedic.currentMd ? `${PLANET_NAMES[vedic.currentMd.lord]}大运` : ''}
+                    {r.kind === 'year' ? `，展开看 ${r.year} 行运` : '，展开看完整星盘'}
+                  </span>
+                </summary>
+                <VedicView chart={vedic} showYear={r.kind === 'year'} />
+              </details>
+            ) : (
+              <p className="error">
+                {!client ? '找不到这位命主，排不了盘。' : !client.birth.place ? '命主还没填出生地，排不了吠陀星盘。' : '命主的出生信息不完整，排不了盘。'}
+                {client && <button type="button" className="link" onClick={props.onOpenClient}>去补全</button>}
+              </p>
+            )
+          ) : chart ? (
             <details className="chart-toggle">
               <summary>
                 <span className="summary-gz">{chart.pillars.map((p) => <Gz key={p.label} text={p.gan + p.zhi} />)}</span>
@@ -139,8 +177,8 @@ export function ReadingPage(props: { initial: Reading; client: Client | null; si
             </div>
           </div>
           <div className="export-row">
-            <button type="button" className={`btn${hasText ? ' go' : ''}`} disabled={!hasText || !chart} onClick={() => setPreview(true)}>生成长图</button>
-            <button type="button" className="btn" disabled={!hasText || !ready} onClick={() => chart && client && copy(toWechatText(r, client, chart, parsed, props.signature), '微信文字已复制')}>复制微信文字</button>
+            <button type="button" className={`btn${hasText ? ' go' : ''}`} disabled={!hasText || !active} onClick={() => setPreview(true)}>生成长图</button>
+            <button type="button" className="btn" disabled={!hasText || !ready} onClick={() => active && client && copy(toWechatText(r, client, active, parsed, props.signature), '微信文字已复制')}>复制微信文字</button>
           </div>
           {!hasText && <p className="hint">有了解读才能导出。</p>}
         </li>
@@ -150,7 +188,7 @@ export function ReadingPage(props: { initial: Reading; client: Client | null; si
 
       <div className="action-bar">
         {flash && <div className="toast" role="status">{flash}</div>}
-        <button type="button" className={`btn${!hasText ? ' go' : ''}`} disabled={!ready} onClick={() => chart && client && copy(buildPrompt(r, client, chart), '提示词已复制')}>复制提示词</button>
+        <button type="button" className={`btn${!hasText ? ' go' : ''}`} disabled={!ready} onClick={() => client && copy(vedic ? buildVedicPrompt(r, client, vedic) : chart ? buildPrompt(r, client, chart) : '', '提示词已复制')}>复制提示词</button>
         <button type="button" className="btn" onClick={paste}>粘贴解读</button>
         <button
           type="button"
@@ -164,9 +202,9 @@ export function ReadingPage(props: { initial: Reading; client: Client | null; si
         </button>
       </div>
 
-      {preview && chart && (
-        <ExportModal fileName={`八字-${name}-${readingTitle(r)}-${formatDate(r.createdAt)}.png`} onClose={() => setPreview(false)}>
-          <LongImage reading={r} name={name} chart={chart} parsed={parsed} theme={theme} signature={props.signature} />
+      {preview && active && (
+        <ExportModal fileName={`${isVedic ? '' : '八字-'}${name}-${readingTitle(r)}-${formatDate(r.createdAt)}.png`} onClose={() => setPreview(false)}>
+          <LongImage reading={r} name={name} chart={isVedic ? null : chart} vedic={vedic} parsed={parsed} theme={theme} signature={props.signature} />
         </ExportModal>
       )}
       {fallback && <TextModal title={fallback.title} text={fallback.text} onClose={() => setFallback(null)} />}

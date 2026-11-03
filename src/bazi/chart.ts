@@ -114,6 +114,12 @@ function toSolar(b: BirthInfo): Solar | null {
   }
 }
 
+// 出生的公历年月日时分（农历已换算）；时辰不详按正午。吠陀星盘也用它。
+export function birthSolar(b: BirthInfo): { y: number; m: number; d: number; h: number; mi: number } | null {
+  const s = toSolar(b);
+  return s ? { y: s.getYear(), m: s.getMonth(), d: s.getDay(), h: s.getHour(), mi: s.getMinute() } : null;
+}
+
 const period = (dayGan: string, ganZhi: string): Period => ({ ganZhi, shiShen: shiShen(dayGan, ganZhi[0]) });
 
 // 流月以节为界：每个公历月 15 日一定已过当月的节，取那天的月干支和它之前的节。

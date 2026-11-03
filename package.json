@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",
+    "astronomy-engine": "^2.1.19",
     "html-to-image": "^1.11.13",
     "idb-keyval": "^6.3.0",
     "lunar-javascript": "^1.7.7",

@@ -6,6 +6,8 @@ declare module 'lunar-javascript' {
     getYear(): number;
     getMonth(): number;
     getDay(): number;
+    getHour(): number;
+    getMinute(): number;
     getLunar(): Lunar;
   }
   export class Lunar {

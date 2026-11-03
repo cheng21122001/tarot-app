@@ -16,6 +16,21 @@ describe('rows', () => {
     expect(fromRow(row)).toEqual(r);
   });
 
+  it('round-trips a vedic reading and a birth place', () => {
+    const withPlace: Client = { ...client, birth: { ...client.birth, place: { name: '成都', lat: 30.57, lon: 104.07, tz: 'Asia/Shanghai' } } };
+    expect(fromRow(toRow(withPlace))).toEqual(withPlace);
+    const r = { ...newReading(withPlace, 'natal', 2026, new Date(), 'vedic'), interpretation: '正文' };
+    const row = toRow(r);
+    expect(row.spread_preset).toBe('vedic_natal');
+    expect(fromRow(row)).toEqual(r);
+    expect(toRow(newReading(withPlace, 'year', 2027, new Date(), 'vedic')).spread_preset).toBe('vedic_year');
+  });
+
+  it('reads readings saved before vedic as bazi', () => {
+    const r = newReading(client, 'natal', 2026);
+    expect((fromRow(toRow(r)) as { system: string }).system).toBe('bazi');
+  });
+
   it('skips old tarot rows and deleted rows', () => {
     const tarot: Row = {
       id: 'x', created_at: '2026-09-15T00:00:00+00:00', updated_at: '2026-09-15T00:00:00+00:00', client_name: 'a', question: 'q',
