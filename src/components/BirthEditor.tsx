@@ -1,5 +1,6 @@
 import { switchCalendar } from '../bazi/chart';
 import type { BirthInfo } from '../domain/types';
+import { PlaceEditor } from './PlaceEditor';
 
 const LUNAR_MONTHS = ['正', '二', '三', '四', '五', '六', '七', '八', '九', '十', '冬', '腊'];
 const LUNAR_DAYS = Array.from({ length: 30 }, (_, i) => {
@@ -78,6 +79,7 @@ export function BirthEditor({ birth: b, onChange }: { birth: BirthInfo; onChange
           </div>
         </div>
       </div>
+      <PlaceEditor place={b.place} onChange={(place) => set({ place })} />
     </>
   );
 }

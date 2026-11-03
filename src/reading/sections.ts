@@ -1,4 +1,4 @@
-import { SCHOOLS, type ReadingKind, type School } from '../domain/types';
+import { SCHOOLS, type ReadingKind, type School, type System } from '../domain/types';
 
 const SCHOOL_SECTION: Record<ReadingKind, Record<School, string>> = {
   natal: { geju: '格局派：成就与方向', tiaohou: '调候派：心态与状态', fuyi: '扶抑派：强弱与喜忌' },
@@ -6,8 +6,13 @@ const SCHOOL_SECTION: Record<ReadingKind, Record<School, string>> = {
 };
 
 // 每次测算要求输出的段落标题，提示词、拆分、导出共用。
-// schools 为空是加入流派之前的旧测算，保持原来的分段。
-export function sectionsFor(kind: ReadingKind, schools: School[]): string[] {
+// schools 为空是加入流派之前的旧测算，保持原来的分段。吠陀占星不分流派。
+export function sectionsFor(kind: ReadingKind, schools: School[], system: System = 'bazi'): string[] {
+  if (system === 'vedic') {
+    return kind === 'natal'
+      ? ['星盘总览', '性格与心性', '事业学业', '财富', '感情婚姻', '大运走势', '建议']
+      : ['年度总览', '大运与小运', '事业', '财运', '感情', '健康与心态', '逐月提示', '建议'];
+  }
   const chosen = SCHOOLS.filter((s) => schools.includes(s));
   if (!chosen.length) {
     return kind === 'natal'

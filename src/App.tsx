@@ -2,7 +2,7 @@ import type { Session } from '@supabase/supabase-js';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { supabase } from './data/supabase';
 import { useDocs } from './data/useDocs';
-import { newClient, newReading, newSettings, type Client, type Doc } from './domain/types';
+import { newClient, newReading, newSettings, type Client, type Doc, type System } from './domain/types';
 import { useHashRoute } from './lib/useHashRoute';
 import { useSwipeBack } from './lib/useSwipeBack';
 import { ClientPage } from './pages/ClientPage';
@@ -49,8 +49,8 @@ function Shell({ userId }: { userId: string }) {
     window.scrollTo(0, route ? 0 : (scrollMemory.current.get(hash) ?? 0));
   }, [hash, route]);
 
-  const startReading = (c: Client, kind: 'natal' | 'year', year: number) => {
-    const r = newReading(c, kind, year);
+  const startReading = (c: Client, kind: 'natal' | 'year', year: number, system: System) => {
+    const r = newReading(c, kind, year, new Date(), system);
     saveDoc(r);
     go(`#/r/${r.id}`);
   };

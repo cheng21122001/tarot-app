@@ -6,6 +6,14 @@ export interface BirthInfo {
   leapMonth: boolean;
   time: string | null; // HH:mm，null 为时辰不详
   gender: 'male' | 'female';
+  place?: BirthPlace | null; // 出生地，吠陀星盘排上升和宫位要用；八字不用
+}
+
+export interface BirthPlace {
+  name: string;
+  lat: number; // 北纬为正
+  lon: number; // 东经为正
+  tz: string; // IANA 时区名，如 Asia/Shanghai，用来把出生钟表时间换成 UTC（含历史夏令时）
 }
 
 export interface Client {
@@ -20,6 +28,10 @@ export interface Client {
 
 export type ReadingKind = 'natal' | 'year';
 
+// 用哪套命理：八字，或吠陀占星（印度占星，Jyotish）。
+export type System = 'bazi' | 'vedic';
+export const SYSTEM_LABELS: Record<System, string> = { bazi: '八字', vedic: '吠陀占星' };
+
 // 取用神的流派。格局偏看成就与方向，调候偏看心态与状态，扶抑看日主强弱与承受力。
 export type School = 'geju' | 'tiaohou' | 'fuyi';
 export const SCHOOLS: School[] = ['geju', 'tiaohou', 'fuyi'];
@@ -33,6 +45,7 @@ export interface Reading {
   updatedAt: string;
   clientId: string;
   clientName: string; // 建测算时命主的称呼，命主被删后列表仍能显示
+  system: System; // 加入吠陀之前的旧记录都是八字
   kind: ReadingKind;
   year: number; // 流年运势看的年份；命盘总论为建档当年，用来定当前大运流年
   focus: string; // 已不在界面上填写，保留字段以兼容旧记录
@@ -72,7 +85,7 @@ export function newClient(now: Date = new Date()): Client {
   };
 }
 
-export function newReading(client: Client, kind: ReadingKind, year: number, now: Date = new Date()): Reading {
+export function newReading(client: Client, kind: ReadingKind, year: number, now: Date = new Date(), system: System = 'bazi'): Reading {
   const t = now.toISOString();
   return {
     type: 'reading',
@@ -81,17 +94,19 @@ export function newReading(client: Client, kind: ReadingKind, year: number, now:
     updatedAt: t,
     clientId: client.id,
     clientName: client.name,
+    system,
     kind,
     year,
     focus: '',
-    schools: ['geju', 'tiaohou'],
+    schools: system === 'bazi' ? ['geju', 'tiaohou'] : [],
     interpretation: '',
     exportTheme: null,
   };
 }
 
 export function readingTitle(r: Reading): string {
-  return r.kind === 'year' ? `${r.year} 流年运势` : '命盘总论';
+  const title = r.kind === 'year' ? `${r.year} 流年运势` : '命盘总论';
+  return r.system === 'vedic' ? `吠陀 ${title}` : title;
 }
 
 export function isClientBlank(c: Client): boolean {

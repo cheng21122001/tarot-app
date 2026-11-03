@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { buildChart, today } from '../bazi/chart';
 import { Gz } from '../components/Gz';
-import { readingTitle, type Client, type Reading } from '../domain/types';
+import { readingTitle, type Client, type Reading, type System } from '../domain/types';
 import { formatDate, groupByMonth } from '../reading/format';
 import { NewReadingButtons } from './NewReading';
 
@@ -15,7 +15,7 @@ export function HomePage(props: {
   onOpenReading: (id: string) => void;
   onOpenClient: (id: string) => void;
   onNewClient: () => void;
-  onNewReading: (client: Client, kind: 'natal' | 'year', year: number) => void;
+  onNewReading: (client: Client, kind: 'natal' | 'year', year: number, system: System) => void;
   signature: string;
   onSignature: (s: string) => void;
   onSignOut: () => void;
@@ -130,7 +130,7 @@ function ClientRow({ client: c, count, onOpen }: { client: Client; count: number
   );
 }
 
-function ClientPicker({ clients, onNewClient, onCreate, onClose }: { clients: Client[]; onNewClient: () => void; onCreate: (c: Client, kind: 'natal' | 'year', year: number) => void; onClose: () => void }) {
+function ClientPicker({ clients, onNewClient, onCreate, onClose }: { clients: Client[]; onNewClient: () => void; onCreate: (c: Client, kind: 'natal' | 'year', year: number, system: System) => void; onClose: () => void }) {
   const [query, setQuery] = useState('');
   const [chosen, setChosen] = useState<Client | null>(null);
   const q = query.trim().toLowerCase();
@@ -145,7 +145,7 @@ function ClientPicker({ clients, onNewClient, onCreate, onClose }: { clients: Cl
         </div>
         <div className="sheet-body">
           {chosen ? (
-            <NewReadingButtons onCreate={(kind, year) => onCreate(chosen, kind, year)} />
+            <NewReadingButtons hasPlace={Boolean(chosen.birth.place)} onCreate={(kind, year, system) => onCreate(chosen, kind, year, system)} />
           ) : (
             <>
               {clients.length > 6 && <input type="search" placeholder="搜称呼" value={query} onChange={(e) => setQuery(e.target.value)} />}

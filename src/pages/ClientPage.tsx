@@ -1,11 +1,13 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { buildChart } from '../bazi/chart';
 import { BirthEditor } from '../components/BirthEditor';
 import { ChartView } from '../components/ChartView';
 import { PageBar } from '../components/PageBar';
-import { isClientBlank, readingTitle, type Client, type Reading } from '../domain/types';
+import { VedicView } from '../components/VedicView';
+import { isClientBlank, readingTitle, SYSTEM_LABELS, type Client, type Reading, type System } from '../domain/types';
 import { useAutosave } from '../lib/useAutosave';
 import { formatDate } from '../reading/format';
+import { buildVedicChart } from '../vedic/chart';
 import { NewReadingButtons } from './NewReading';
 
 export function ClientPage(props: {
@@ -15,10 +17,14 @@ export function ClientPage(props: {
   onDelete: () => void;
   onHome: () => void;
   onOpenReading: (id: string) => void;
-  onNewReading: (c: Client, kind: 'natal' | 'year', year: number) => void;
+  onNewReading: (c: Client, kind: 'natal' | 'year', year: number, system: System) => void;
 }) {
   const { value: c, change, discard, status } = useAutosave(props.initial, props.onSave, isClientBlank);
   const chart = buildChart(c.birth, new Date().getFullYear());
+  const birthKey = JSON.stringify(c.birth);
+  const vedic = useMemo(() => buildVedicChart(c.birth, new Date().getFullYear()), [birthKey]);
+  // 看哪套盘；有吠陀测算记录、又填了出生地的命主默认先看吠陀。
+  const [view, setView] = useState<System>(() => (props.initial.birth.place && props.readings.some((r) => r.system === 'vedic') && !props.readings.some((r) => r.system === 'bazi') ? 'vedic' : 'bazi'));
   // 出生信息已经能排盘的默认收起表单，新建或信息不全时展开。
   const [editing, setEditing] = useState(() => !buildChart(props.initial.birth, 2000) || !props.initial.name.trim());
   const remove = useCallback(() => {
@@ -53,12 +59,32 @@ export function ClientPage(props: {
             <br />
             {chart?.lunarText}
           </p>
+          {c.birth.place && <p className="place">出生地：{c.birth.place.name || '手填坐标'}</p>}
           {c.note.trim() && <p className="note">{c.note.trim()}</p>}
           <button type="button" className="link" onClick={() => setEditing(true)}>修改资料</button>
         </header>
       )}
 
-      {chart ? (
+      {chart && (
+        <div className="seg system-tabs">
+          {(['bazi', 'vedic'] as const).map((s) => (
+            <button type="button" key={s} className={view === s ? 'on' : ''} onClick={() => setView(s)}>{SYSTEM_LABELS[s]}</button>
+          ))}
+        </div>
+      )}
+
+      {chart && view === 'vedic' ? (
+        vedic ? (
+          <section className="block chart-block">
+            <VedicView chart={vedic} />
+          </section>
+        ) : (
+          <p className="hint">
+            吠陀星盘要用出生地来定上升和宫位。
+            <button type="button" className="link" onClick={() => setEditing(true)}>去填出生地</button>
+          </p>
+        )
+      ) : chart ? (
         <section className="block chart-block">
           <ChartView chart={chart} />
         </section>
@@ -68,8 +94,8 @@ export function ClientPage(props: {
 
       {chart && (
         <section className="block">
-          <h2>新建测算</h2>
-          <NewReadingButtons onCreate={(kind, year) => props.onNewReading(c, kind, year)} />
+          <h2>新建{SYSTEM_LABELS[view]}测算</h2>
+          <NewReadingButtons key={view} system={view} hasPlace={Boolean(c.birth.place)} onCreate={(kind, year, system) => props.onNewReading(c, kind, year, system)} />
         </section>
       )}
 

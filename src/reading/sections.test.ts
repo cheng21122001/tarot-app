@@ -14,4 +14,10 @@ describe('sectionsFor', () => {
   it('skips the comparison for a single school', () => {
     expect(sectionsFor('natal', ['tiaohou'])).not.toContain('两派对照');
   });
+
+  it('uses its own headings for vedic readings', () => {
+    expect(sectionsFor('natal', [], 'vedic')[0]).toBe('星盘总览');
+    expect(sectionsFor('year', ['geju'], 'vedic')).toContain('逐月提示');
+    expect(sectionsFor('year', ['geju'], 'vedic')).not.toContain('格局派看这一年');
+  });
 });
