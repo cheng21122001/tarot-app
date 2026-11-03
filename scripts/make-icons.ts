@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { mkdir, rm } from 'node:fs/promises';
+import { mkdir, rm, writeFile } from 'node:fs/promises';
 import sharp from 'sharp';
 
 // 牌背式图标：深夜蓝底、烫金双线牌框、中间一颗细长八芒星和一弯新月。
@@ -70,6 +70,20 @@ for (const size of [192, 512]) {
   await sharp(full).resize(size, size).png().toFile(`public/icons/icon-${size}.png`);
 }
 await sharp(full).resize(1024, 1024).png().toFile('public/icons/icon-1024.png');
+
+// 浏览器标签页图标：同一张牌背的简化版——牌框放大、线条加粗、只留主星和新月，16~32px 也看得清。
+const ray = (len: number, w: number) => `M0 ${-len} C${w * 0.18} ${-len * 0.45} ${w * 0.55} ${-w * 0.9} ${w} 0 C${w * 0.55} ${w * 0.9} ${w * 0.18} ${len * 0.45} 0 ${len} C${-w * 0.18} ${len * 0.45} ${-w * 0.55} ${w * 0.9} ${-w} 0 C${-w * 0.55} ${-w * 0.9} ${-w * 0.18} ${-len * 0.45} 0 ${-len} Z`;
+const tabSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="12" fill="#161d31"/>
+  <rect x="14" y="5" width="36" height="54" rx="4" fill="#161d33" stroke="#d8bb74" stroke-width="3.5"/>
+  <path d="${ray(15, 3.6)}" transform="translate(32 34)" fill="#e2c784"/>
+  <path d="${ray(15, 3.6)}" transform="translate(32 34) rotate(90)" fill="#e2c784"/>
+  <path d="M30.5 11.5a4 4 0 1 0 4.5 5.2a3.2 3.2 0 1 1 -4.5 -5.2Z" fill="#d8bb74"/>
+</svg>`;
+await mkdir('build', { recursive: true });
+await writeFile('public/icons/favicon.svg', tabSvg);
+await sharp(Buffer.from(tabSvg)).resize(32, 32).png().toFile('public/icons/favicon-32.png');
+await sharp(Buffer.from(tabSvg)).resize(256, 256).png().toFile('build/favicon-preview.png');
 
 // macOS .icns，给桌面启动器用。
 const mac = Buffer.from(iconSvg('mac'));
